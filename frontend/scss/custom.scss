@@ -1,0 +1,20 @@
+@import "../node_modules/bootstrap/scss/functions";
+@import "../node_modules/bootstrap/scss/variables";
+@import "../node_modules/bootstrap/scss/mixins";
+
+$primary: #9F51FB;
+$secondary: color-contrast(#000);
+
+$theme-colors: (
+        "primary": $primary,
+        "secondary": $secondary,
+        "danger": $danger,
+        "success": $success,
+        "warning": $warning,
+        "info": $info,
+        "light": $light,
+        "dark": $dark
+);
+
+
+@import "../node_modules/bootstrap/scss/bootstrap";

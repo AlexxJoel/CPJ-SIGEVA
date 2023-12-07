@@ -1,198 +1,124 @@
 <template>
-  <div class="container">
-    <h1 class="first-four">4</h1>
-    <div class="cog-wheel1">
-      <div class="cog1">
-        <div class="top"></div>
-        <div class="down"></div>
-        <div class="left-top"></div>
-        <div class="left-down"></div>
-        <div class="right-top"></div>
-        <div class="right-down"></div>
-        <div class="left"></div>
-        <div class="right"></div>
+
+<Navbar />
+
+<div class="container">
+  <div class="mt-5">
+    <div id="notfound">
+      <div class="notfound">
+        <div class="notfound-404">
+          <h3>Oops! Página no encontrada</h3>
+          <h1><span>4</span><span>0</span><span>4</span></h1>
+        </div>
+        <h2>¡Oh no! El enlace que buscas ha decidido tomar un café. ¡Prueba con otro!
+        </h2>
+
+        <div >
+          <router-link to="/" class="btn btn-primary text-secondary d-block">Volver al inicio</router-link>
+        </div>
+
       </div>
     </div>
 
-    <div class="cog-wheel2">
-      <div class="cog2">
-        <div class="top"></div>
-        <div class="down"></div>
-        <div class="left-top"></div>
-        <div class="left-down"></div>
-        <div class="right-top"></div>
-        <div class="right-down"></div>
-        <div class="left"></div>
-        <div class="right"></div>
-      </div>
-    </div>
-    <h1 class="second-four">4</h1>
-    <p class="wrong-para">Uh Oh! Page not found!</p>
   </div>
+</div>
 </template>
 
 <script setup >
-let t1 = gsap.timeline();
-let t2 = gsap.timeline();
-let t3 = gsap.timeline();
+import Navbar from "@/components/Navbar.vue";
 
-t1.to(".cog1",
-    {
-      transformOrigin:"50% 50%",
-      rotation:"+=360",
-      repeat:-1,
-      ease:Linear.easeNone,
-      duration:8
-    });
-
-t2.to(".cog2",
-    {
-      transformOrigin:"50% 50%",
-      rotation:"-=360",
-      repeat:-1,
-      ease:Linear.easeNone,
-      duration:8
-    });
-
-t3.fromTo(".wrong-para",
-    {
-      opacity:0
-    },
-    {
-      opacity:1,
-      duration:1,
-      stagger:{
-        repeat:-1,
-        yoyo:true
-      }
-    });
 </script>
 
 <style scoped>
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
+* {
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
 }
 
-body{
-  overflow:hidden;
-  background-color: #f4f6ff;
+body {
+  padding: 0;
+  margin: 0;
 }
 
-.container{
-  width:100vw;
-  height:100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-family: "Poppins", sans-serif;
-  position: relative;
-  left:6vmin;
+
+.notfound {
+  margin: auto;
+  max-width: 520px;
+  width: 100%;
+  line-height: 1.4;
   text-align: center;
 }
 
-.cog-wheel1, .cog-wheel2{
-  transform:scale(0.7);
-}
-
-.cog1, .cog2{
-  width:40vmin;
-  height:40vmin;
-  border-radius:50%;
-  border:6vmin solid #f3c623;
+.notfound .notfound-404 {
   position: relative;
+  height: 240px;
+
 }
 
-
-.cog2{
-  border:6vmin solid #4f8a8b;
-}
-
-.top, .down, .left, .right, .left-top, .left-down, .right-top, .right-down{
-  width:10vmin;
-  height:10vmin;
-  background-color: #f3c623;
+.notfound .notfound-404 h1 {
+  font-family: 'Montserrat', sans-serif;
   position: absolute;
+  left: 50%;
+  top: 50%;
+  -webkit-transform: translate(-50%, -50%);
+  -ms-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+  font-size: 252px;
+  font-weight: 900;
+  margin: 0px;
+  color: #262626;
+  text-transform: uppercase;
+  letter-spacing: -40px;
+  margin-left: -20px;
 }
 
-.cog2 .top,.cog2  .down,.cog2  .left,.cog2  .right,.cog2  .left-top,.cog2  .left-down,.cog2  .right-top,.cog2  .right-down{
-  background-color: #4f8a8b;
+.notfound .notfound-404 h1>span {
+  text-shadow: -8px 0px 0px #fff;
 }
 
-.top{
-  top:-14vmin;
-  left:9vmin;
-}
-
-.down{
-  bottom:-14vmin;
-  left:9vmin;
-}
-
-.left{
-  left:-14vmin;
-  top:9vmin;
-}
-
-.right{
-  right:-14vmin;
-  top:9vmin;
-}
-
-.left-top{
-  transform:rotateZ(-45deg);
-  left:-8vmin;
-  top:-8vmin;
-}
-
-.left-down{
-  transform:rotateZ(45deg);
-  left:-8vmin;
-  top:25vmin;
-}
-
-.right-top{
-  transform:rotateZ(45deg);
-  right:-8vmin;
-  top:-8vmin;
-}
-
-.right-down{
-  transform:rotateZ(-45deg);
-  right:-8vmin;
-  top:25vmin;
-}
-
-.cog2{
+.notfound .notfound-404 h3 {
+  font-family: 'Cabin', sans-serif;
   position: relative;
-  left:-10.2vmin;
-  bottom:10vmin;
+  font-size: 16px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #262626;
+  margin: 0px;
+  letter-spacing: 3px;
+  padding-left: 6px;
 }
 
-h1{
-  color:#142833;
+.notfound h2 {
+  font-family: 'Cabin', sans-serif;
+  font-size: 20px;
+  font-weight: 400;
+  text-transform: uppercase;
+  color: #000;
+  margin-top: 0px;
+  margin-bottom: 25px;
 }
 
-.first-four{
-  position: relative;
-  left:6vmin;
-  font-size:40vmin;
+@media only screen and (max-width: 767px) {
+  .notfound .notfound-404 {
+    height: 200px;
+  }
+  .notfound .notfound-404 h1 {
+    font-size: 200px;
+  }
 }
 
-.second-four{
-  position: relative;
-  right:18vmin;
-  z-index: -1;
-  font-size:40vmin;
+@media only screen and (max-width: 480px) {
+  .notfound .notfound-404 {
+    height: 162px;
+  }
+  .notfound .notfound-404 h1 {
+    font-size: 162px;
+    height: 150px;
+    line-height: 162px;
+  }
+  .notfound h2 {
+    font-size: 16px;
+  }
 }
 
-.wrong-para{
-  font-family: "Montserrat", sans-serif;
-  position: absolute;
-  bottom:15vmin;
-  padding:3vmin 12vmin 3vmin 3vmin;
-  font-weight:600;
-  color:#092532;
-}
 </style>

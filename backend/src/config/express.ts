@@ -1,6 +1,7 @@
 import express, {Application} from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import Router from "../modules/router";
 
 dotenv.config();
 
@@ -19,7 +20,7 @@ app.use(express.json({limit: '60mb'}));
 app.use(express.urlencoded({extended: false}))
 
 app.get('/test', (req, res) => res.send('Welcome to SIGEVA (Sistema de Gestión de Almacenamiento)'))
-
+app.use(`/${API}/auth`, Router.AuthRoutes);
 
 app.get('*', (req, res) => res.status(404).send('Page Not Found'))
 export default app;
