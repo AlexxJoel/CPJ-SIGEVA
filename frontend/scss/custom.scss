@@ -5,6 +5,19 @@
 $primary: #9F51FB;
 $secondary: color-contrast(#000);
 
+
+$pagination-color: $primary; /* Color del texto */
+$pagination-bg: white; /* Color de fondo */
+$pagination-border: $primary; /* Color del borde */
+
+$pagination-hover-color: $primary; /* Color del texto al pasar el ratón */
+$pagination-hover-bg: #eee; /* Color de fondo al pasar el ratón */
+$pagination-hover-border: #ddd; /* Color del borde al pasar el ratón */
+
+$pagination-active-color: white; /* Color del texto del enlace activo */
+$pagination-active-bg: $primary; /* Color de fondo del enlace activo */
+$pagination-active-border: $primary; /* Borde del enlace activo */
+
 $theme-colors: (
         "primary": $primary,
         "secondary": $secondary,
