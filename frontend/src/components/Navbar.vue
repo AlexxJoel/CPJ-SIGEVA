@@ -4,7 +4,7 @@
     <div class="container-fluid">
       <!--  Icon -->
       <router-link to="/">
-        <img src="../assets/images/shop.png" alt="LOGO" height="34" class="d-inline-block align-text-top">
+        <img src="@/assets/images/shop.png" alt="LOGO" height="34" class="d-inline-block align-text-top">
       </router-link>
         <span class=" navbar-brand fw-bold text-uppercase ms-2">sigeva</span>
 
