@@ -1,7 +1,4 @@
 <template>
-
-<Navbar />
-
 <div class="container">
   <div class="mt-5">
     <div id="notfound">
@@ -25,7 +22,6 @@
 </template>
 
 <script setup >
-import Navbar from "@/components/Navbar.vue";
 
 </script>
 

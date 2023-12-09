@@ -12,19 +12,29 @@ const router = createRouter({
             path: '/admin/',
             name: 'admin',
             meta: {requiresAuth: true},
+            component: () => import('../views/admin/component/AdminLayout.vue'),
             children: [
                 {
                     path: 'home',
                     name: 'homeAdmin',
                     component: () => import('../views/admin/home/Home.vue'),
+                },{
+                    path: 'providersProduct',
+                    name: 'providersProductAdmin',
+                    component: () => import('../views/admin/providersProducts/providerProductsList.vue'),
+                },
+                {
+                    path: ":pathMatch(.*)*",
+                    name: "NotFound",
+                    component: () => import("../components/NotFound.vue")
                 }
             ],
         },
-        {
+       /* {
             path: "/:pathMatch(.*)*",
             name: "NotFound",
             component: () => import("../components/NotFound.vue")
-        }
+        }*/
     ]
 })
 
