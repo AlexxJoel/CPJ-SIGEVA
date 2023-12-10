@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const SERVER_URL = process.env.VUE_APP_BASE_URL;
+const SERVER_URL = import.meta.env.VITE_API_ENDPOINT;
 
 const instance = axios.create({
     baseURL: SERVER_URL,
