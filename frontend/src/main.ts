@@ -32,6 +32,6 @@ app.use(VueSweetalert2);
 app.mount('#app')
 
 import "bootstrap/dist/js/bootstrap.min";
-
+import 'bootstrap/dist/js/bootstrap.bundle.min';
 
 
