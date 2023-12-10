@@ -2,7 +2,7 @@ import { DatabaseError } from "pg";
 import { Errors } from "../../config/error_codes";
 import { PoolSingleton } from "../../config/postgres";
 import { TicketDto, Transaction } from "./transaction.dtos";
-import { sendNotification, sendTicket } from "./utils/transactionFunctions";
+import { sendNotification, sendTicket, sendTicketLayaway } from "./utils/transactionFunctions";
 
 const saveSell = async (payload: Transaction) => {
     const pool = PoolSingleton.getInstance();
@@ -157,8 +157,8 @@ const saveLayaway = async (payload: Transaction) => {
         } else {
             throw Error(Errors.ERROR_SAVING);
         }
-        const query = `insert into transaction(creation_date, payment_date, total_amount, transaction_types_id, staff_id, people_id) 
-        values(CURRENT_TIMESTAMP AT TIME ZONE 'America/Mexico_City', null, $1, 2, $2, $3) returning id;`;
+        const query = `insert into transactions(creation_date, payment_date, total_amount, transaction_types_id, staff_id, people_id) 
+        values(CURRENT_TIMESTAMP AT TIME ZONE 'America/Mexico_City', null, $1, 2, $2, $3) returning id, creation_date;`;
         const { rows: transactionRow } = await client.query(query, [
             payload.totalAmount,
             payload.staffId,
@@ -172,6 +172,15 @@ const saveLayaway = async (payload: Transaction) => {
                 product.id,
                 product.quantitySold,
             ]);
+            const { rows: productRows } = await client.query(`update products set quantity = quantity - $1 where id = $2 returning id, quantity, name;`, [
+                product.quantitySold,
+                product.id
+            ])
+            if (!productRows[0]?.id) throw Error(Errors.ERROR_UPDATING);
+            if (productRows[0]?.quantity < 4) {
+                const { rows: managerRow } = await client.query(`select email from staff where is_manager = true;`)
+                sendNotification(managerRow[0]?.email, productRows[0]?.name);
+            }
         }
         await client.query('COMMIT');
         const { rows: clientRow } = await client.query(`select email from clients where people_id = $1;`, [
@@ -183,7 +192,7 @@ const saveLayaway = async (payload: Transaction) => {
             charge: payload.charge,
         }
         if (payload.sendEmail)
-            sendTicket(ticketPayload, transactionRow[0].creation_date, payload.totalAmount, clientRow[0].email);
+            sendTicketLayaway(ticketPayload, transactionRow[0].creation_date, payload.totalAmount, clientRow[0].email);
         return !!transactionRow[0].id;
     } catch (error) {
         console.log(error);
