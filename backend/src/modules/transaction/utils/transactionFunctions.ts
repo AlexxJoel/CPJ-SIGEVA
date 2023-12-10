@@ -32,9 +32,35 @@ export const sendTicket = (payload: TicketDto, creationDate: string, totalAmount
             confianza en nosotros y estamos emocionados de haberte servido.
             Resumen de tu compra:
             • Fecha de compra: ${creationDate}
-            • Artículos adquiridos: 
-            ${payload.charge.map((p: any) => `${p.name}, ${p.description}: ${p.quantitySold}\n`)}
+            • Artículos adquiridos: ${payload.charge.map((p: any) => `${p.name}, ${p.description || ``}: ${p.quantitySold}\n`)}
             • Total de compra: ${totalAmount}
+            Esperamos verte de nuevo en nuestra tienda y ser parte de más momentos inolvidables contigo.
+            Gracias por elegir THE LORD ORF RINGS Joyería. Tu satisfacción es nuestra prioridad.
+            THE LORD OF RINGS Joyería`,
+    };
+    // Envía el correo electrónico
+    transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+            console.error('Error al enviar ticket:', error.message);
+            throw Error(Errors.ERROR_SENDING_EMAIL);
+        } else {
+            console.log('Correo electrónico de ticket enviado con éxito:', info.response);
+        }
+    });
+}
+export const sendTicketLayaway = (payload: TicketDto, creationDate: string, totalAmount: number, costumerEmail: string) => {
+    const mailOptions = {
+        from: process.env.EMAIL_ADDRESS,
+        to: costumerEmail,
+        subject: 'Gacias por realizar tu apartado en LORD OF RINGS Joyería',
+        text: `Estimado/a ${payload.costumerName},
+            En nombre de todo el equipo de THE LORD OR RINGS Joyería, queremos expresar nuestro más sincero
+            agradecimiento por haber elegido nuestra joyería para hacer tus apartados. Valoramos enormemente tu
+            confianza en nosotros y estamos emocionados de haberte servido.
+            Resumen de tu compra:
+            • Fecha de apartado: ${creationDate}
+            • Artículos apartados: ${payload.charge.map((p: any) => `${p.name}, ${p.description || ``}: ${p.quantitySold}\n`)}
+            • Total a pagar: ${totalAmount}
             Esperamos verte de nuevo en nuestra tienda y ser parte de más momentos inolvidables contigo.
             Gracias por elegir THE LORD ORF RINGS Joyería. Tu satisfacción es nuestra prioridad.
             THE LORD OF RINGS Joyería`,
