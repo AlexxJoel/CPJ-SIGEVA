@@ -23,6 +23,7 @@ app.get('/test', (req, res) => res.send('Welcome to SIGEVA (Sistema de Gestión 
 app.use(`/${API}/auth`, Router.AuthRoutes);
 app.use(`/${API}`, Router.CategoryRoutes);
 app.use(`/${API}`, Router.ProductRoutes);
+app.use(`/${API}`, Router.StaffRoutes);
 
 app.get('*', (req, res) => res.status(404).send('Page Not Found'))
 export default app;
