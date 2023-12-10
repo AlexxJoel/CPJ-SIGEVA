@@ -53,8 +53,7 @@ const goToPage = (page: number) => {
       <div class="">
         <label class="h4 fw-bold">Buscar proveedor</label>
         <div class="input-group">
-          <input type="text" class="form-control" placeholder="Buscar proveedor" aria-label="Buscar proveedor"
-                 v-model="search">
+          <input type="text" class="form-control" placeholder="Buscar proveedor" aria-label="Buscar proveedor" v-model="search">
           <button class="btn btn-primary text-secondary" type="button" >Buscar</button>
         </div>
       </div>
@@ -82,22 +81,6 @@ const goToPage = (page: number) => {
             </div>
           </div>
         </div>
-        <!--      <div v-for="i in 10" :key="i" class="col">
-                <div class="card" aria-hidden="true">
-                  <div class="card-body">
-                    <div class="placeholder-glow d-flex justify-content-center">
-                      <img class="placeholder img-fluid" width="120" height="120" alt=".." src="#"/>
-                    </div>
-                  </div>
-                  <p class="card-text mt-1 ms-3 placeholder-glow">
-                    <span class="placeholder col-8"></span>
-                  </p>
-                  <div class="d-flex justify-content-center m-3">
-                    <button class="btn btn-primary text-secondary w-100 placeholder disabled" type="button"
-                            aria-disabled="true"></button>
-                  </div>
-                </div>
-              </div>-->
       </main>
     </div>
     <div v-else>

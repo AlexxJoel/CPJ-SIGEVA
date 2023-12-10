@@ -119,8 +119,8 @@ const saveProduct = async () => {
         console.log(error);
     }
 }
+
 const items = ref([]);
-console.log("soy el item", items.value);
 let response;
 
 const getCategories = async () => {
