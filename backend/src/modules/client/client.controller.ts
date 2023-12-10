@@ -1,7 +1,31 @@
 import { Request, Response } from "express";
 import { Errors, ResponseApi, validateError } from "../../config/error_codes";
-import { existsByEmail, existsById, findAll, saveClient, updateClient } from "./client.gateway";
+import { existsByEmail, existsById, findAll, findOne, saveClient, updateClient } from "./client.gateway";
 import { Client } from "./client.dtos";
+
+const getOne = async (req: Request, res: Response) => {
+    try {
+        const id = Number(req.params.id);
+
+        if (!id) throw Error(Errors.MISSING_ID);
+        if (Number.isNaN(id)) throw Error(Errors.INVALID_FIELDS);
+        if (id <= 0) throw Error(Errors.INVALID_FIELDS);
+        if (!(await existsById(id))) throw Error(Errors.NOT_FOUND);
+
+        const client = await findOne(id);
+
+        const body: ResponseApi<Client> = {
+            code: 200,
+            error: false,
+            message: 'Ok',
+            data: client,
+        }
+        return res.status(body.code).json(body);
+    } catch (error) {
+        const errorBody = validateError(error as Error);
+        return res.status(errorBody.code).json(errorBody);
+    }
+}
 
 const getAll =async (req: Request, res: Response) => {
     try {
@@ -76,6 +100,7 @@ const update = async (req: Request, res: Response) => {
 
 
 export {
+    getOne,
     getAll,
     save,
     update

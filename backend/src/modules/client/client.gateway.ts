@@ -27,6 +27,30 @@ const findAll = async () => {
     }
 }
 
+const findOne = async (id:number) => {
+    try {
+        const pool = PoolSingleton.getInstance();
+        const { rows: clientRows } = await pool.query(`select
+        c.id as id_c,
+        c.email as email_c,
+        c.phone_number as phone_number_c,
+        c.people_id as people_id_c,
+        p.id as id_p,
+        p.name as name_p,
+        p.surname as surname_p,
+        p.lastname as lastname_p
+        from clients c
+        inner join people p on c.people_id = p.id
+        where c.id=$1;`,
+        [id]);
+        return mapClientsResponse(clientRows)[0];
+    } catch (error) {
+        console.log(error);
+        throw new Error(Errors.SERVER_ERROR);
+
+    }
+}
+
 const existsById = async (id: number) => {
     try {
         const pool = PoolSingleton.getInstance();
@@ -118,6 +142,7 @@ const updateClient =async (payload:Client) => {
 
 export{
     findAll,
+    findOne,
     saveClient,
     updateClient,
     existsByEmail,
