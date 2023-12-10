@@ -1,5 +1,6 @@
 <template>
-  <div class="modal fade" id="addProviderModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal fade" id="addProviderModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true"
+    ref="saveSupllierModal">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
@@ -36,7 +37,7 @@
           </form>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+          <button type="button" id="closeSaveProduct" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
           <button type="button" class="btn btn-primary" @click="saveSupllier">
             Guardar
           </button>
@@ -88,20 +89,21 @@ const saveSupllier = async () => {
             confirmButtonText: "Aceptar",
           });
         }
-      
-        const addProviderModal = document.getElementById("addProviderModal");
-          if (addProviderModal) {
-            const modal = new bootstrap.Modal(addProviderModal);
-            modal.hide();
-          }
 
+        const btnCloseModal = document.getElementById("closeSaveProduct");
+
+        if (btnCloseModal) {
+          btnCloseModal.click();
           supplier.value.contact = '';
           supplier.value.person.name = '';
           supplier.value.person.surname = '';
           supplier.value.person.lastname = '';
         }
-      
-      
+
+
+      }
+
+
     });
   } catch (error) {
     console.log(error);
