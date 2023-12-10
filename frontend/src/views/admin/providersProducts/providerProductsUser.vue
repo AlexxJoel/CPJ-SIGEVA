@@ -69,7 +69,7 @@ const goToPage = (page: number) => {
             <div class="card itemList">
               <div class="card-body">
                 <div class="d-flex justify-content-center">
-                  <img src="https://via.placeholder.com/120" class="img-fluid" alt="...">
+                  <img src="https://cdn-icons-png.flaticon.com/512/1077/1077114.png" class="img-fluid" alt="...">
                 </div>
                 <p class="card-text mt-1 m-0 fw-semibold" style="height: auto">{{ card.person.name +' '+(card.person.lastname ? card.person.lastname: '') }}</p>
                 <span class="card-text mt-2 fw-medium ">Contacto: </span>
