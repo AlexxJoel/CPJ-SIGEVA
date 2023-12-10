@@ -1,10 +1,10 @@
-import axios from 'axios';
+import axios, { type AxiosInstance } from "axios";
 
-const SERVER_URL = import.meta.env.VITE_API_ENDPOINT;
+const serverURL = import.meta.env.VITE_BASE_SEVER_URL;
 
-const instance = axios.create({
-    baseURL: SERVER_URL,
-    timeout: 10000,
+const instance: AxiosInstance = axios.create({
+  baseURL: serverURL,
+  timeout: 30_000,
 });
 
 export default instance;

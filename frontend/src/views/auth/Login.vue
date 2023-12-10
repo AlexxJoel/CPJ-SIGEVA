@@ -2,9 +2,7 @@
   <!-- Login with email and pswd-->
   <Navbar/>
 
-
   <div class="container">
-
     <div class="text-center">
       <div class="card shadow shadow-sm  mt-5 mt-md-5 m-md-auto px-4 " style="max-width: 45rem;">
         <form @submit="onSubmit">
@@ -45,14 +43,13 @@
 </template>
 
 <script setup>
-import {computed, inject,} from "vue";
+import {computed, inject, onMounted,} from "vue";
 import {useRouter} from "vue-router";
 import {useForm, useField} from "vee-validate";
 import * as yup from "yup";
 import api from "@/config/http-client.gateway";
 import Loading from "@/components/Loading.vue";
 import Navbar from "@/components/Navbar.vue";
-
 
 // it to use it in the component, before it was this.$swal
 const Swal = inject('$swal')
@@ -84,10 +81,11 @@ let onSubmit = handleSubmit(async values => {
 
     if (response.status === 200) {
       const token = response.data.token;
-      // const decoded: any = jwtDecode(token);
-      // const user = decoded.user;
-      // const role = decoded.role;
+      const user = JSON.stringify(response.data.data);
+      const {role} = JSON.parse(user);
       localStorage.setItem('token', token);
+      localStorage.setItem('user', user);
+      localStorage.setItem('role', role);
       Swal.fire({
         icon: 'success',
         title: 'Bienvenido',
@@ -95,27 +93,43 @@ let onSubmit = handleSubmit(async values => {
         showConfirmButton: false,
         timer: 2000
       })
-      await router.push({name: 'providersProductAdmin'})
-      // setTimeout(() => {
-      //   if (role === 'ADMIN') {
-      //     router.push({name: 'providersProductAdmin'})
-      //   } else {
-      //     router.push({name: 'providersProductUser'})
-      //   }
-      // }, 1500)
+
+      await sentTo();
+
+
     }
 
     console.log(response);
   } catch (e) {
+    if (e.status === 404) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: 'Usuario y/o contraseña incorrectos',
+        showConfirmButton: false,
+        timer: 2000
+      })
+    }
 
-    Swal.fire({
-      icon: 'error',
-      title: 'Oops...',
-      text: 'Usuario y/o contraseña incorrectos',
-      showConfirmButton: false,
-      timer: 2000
-    })
+    if (e.status === 403) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: 'Usuario deshabilitado',
+        showConfirmButton: false,
+        timer: 2000
+      })
+    }
 
+    if (e.status === 500) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: 'El inicio de sesión ha fallado',
+        showConfirmButton: false,
+        timer: 2000
+      })
+    }
     console.log(e);
   } finally {
     resetForm();
@@ -127,6 +141,21 @@ let isDisabled = computed(() => {
   return !uMeta.valid || !pMeta.valid;
 });
 
+onMounted(() => sentTo())
+
+const sentTo = async () => {
+  const  token = localStorage.getItem('token')
+  if (token === null) await router.push('/');
+  const role = localStorage.getItem('role')
+  console.log(role)
+  if (role === 'Admin') {
+    await router.push({name: 'homeAdmin'})
+  } else if (role === 'Empleado') {
+    await router.push({name: 'homeEmploy'})
+  }else {
+    await router.push('/');
+  }
+}
 </script>
 
 <style scoped>

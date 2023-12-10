@@ -24,11 +24,6 @@
       <div class="collapse navbar-collapse" id="navbarNav">
 
         <ul class="navbar-nav">
-          <li class="nav-item">
-            <router-link class="nav-link px-0" active-class="text-primary fw-bold"
-                         :to="{ name: 'providersProductAdmin'}">Proveedores
-            </router-link>
-          </li>
           <li>
             <router-link class="nav-link px-0 px-md-2" active-class="text-primary fw-bold" :to="{ name: ''}">Clientes
             </router-link>
@@ -42,7 +37,7 @@
             </router-link>
           </li>
           <li>
-            <router-link class="nav-link px-0 px-md-2" active-class="text-primary fw-bold" :to="{ name: 'categories'}">Categorias
+            <router-link class="nav-link px-0 px-md-2" active-class="text-primary fw-bold" :to="{ name: ''}">Categorias
             </router-link>
           </li>
           <li>

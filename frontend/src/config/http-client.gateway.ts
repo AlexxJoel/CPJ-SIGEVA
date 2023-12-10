@@ -205,16 +205,19 @@ AxiosClient.interceptors.response.use(
 );
 
 export default {
-    doGet(endPoint: string) {
-        return AxiosClient.get(endPoint);
+    doGet(url: string, config?: AxiosRequestConfig) {
+        return AxiosClient.get(url, config);
     },
-    doPost(endPoint: string, object: object, config?: AxiosRequestConfig) {
-        return AxiosClient.post(endPoint, object, config);
+    doPost(url: string, data: any, config?: AxiosRequestConfig) {
+        return AxiosClient.post(url, data, config);
     },
-    doPut(endPoint: string, object: object, config?: AxiosRequestConfig) {
-        return AxiosClient.put(endPoint, object, config);
+    doPut(url: string, data: any, config?: AxiosRequestConfig) {
+        return AxiosClient.put(url, data, config);
     },
-    doPatch(endPoint: string, object: object, config?: AxiosRequestConfig) {
-        return AxiosClient.patch(endPoint, object, config);
+    doDelete(url: string, config?: AxiosRequestConfig) {
+        return AxiosClient.delete(url, config);
+    },
+    doPatch(url: string, data: any, config?: AxiosRequestConfig) {
+        return AxiosClient.patch(url, data, config);
     }
-};
+}

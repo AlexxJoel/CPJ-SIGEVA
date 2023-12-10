@@ -11,17 +11,22 @@ const router = createRouter({
         }, {
             path: '/admin/',
             name: 'admin',
-            meta: {requiresAuth: true},
+            meta: {requiresAuth: true, role: 'Admin'},
             component: () => import('../views/admin/component/AdminLayout.vue'),
             children: [
                 {
                     path: 'home',
                     name: 'homeAdmin',
                     component: () => import('../views/admin/home/Home.vue'),
-                },{
+                }, {
                     path: 'providersProduct',
                     name: 'providersProductAdmin',
                     component: () => import('../views/admin/providersProducts/providerProductsUser.vue'),
+                },
+                {
+                    path: 'categories',
+                    name: 'categories',
+                    component: () => import('../views/admin/categories/categoriesList.vue'),
                 },
                 {
                     path: ":pathMatch(.*)*",
@@ -29,18 +34,55 @@ const router = createRouter({
                     component: () => import("../components/NotFound.vue")
                 }
             ],
-        },
-       /* {
-            path: "/:pathMatch(.*)*",
-            name: "NotFound",
-            component: () => import("../components/NotFound.vue")
-        }*/
+        }, {
+            path: '/employ/',
+            name: 'employ',
+            meta: {requiresAuth: true, role: 'Empleado'},
+            component: () => import('../views/employ/component/EmployLayout.vue'),
+            children: [
+                {
+                    path: 'home',
+                    name: 'homeEmploy',
+                    component: () => import('../views/employ/home/Home.vue'),
+                },
+                {
+                    path: ":pathMatch(.*)*",
+                    name: "NotFound",
+                    component: () => import("../components/NotFound.vue")
+                }
+            ],
+        }
+        /* {
+             path: "/:pathMatch(.*)*",
+             name: "NotFound",
+             component: () => import("../components/NotFound.vue")
+         }*/
     ]
 })
 
 router.beforeEach((to, from, next) => {
-    console.log(to);
-    return next()
+    const token = localStorage?.token;
+    const role = localStorage?.role;
+
+    if (to.matched.some(record => record.meta.requiresAuth)) {
+        if (!token) {
+            next('/');
+        } else {
+            if (to.meta.role && to.meta.role !== role) {
+                if (role === 'Admin') {
+                    next('/admin/home');
+                } else if (role === 'Empleado') {
+                    next('/employ/home');
+                }
+            } else {
+                next();
+            }
+        }
+    }
+
+    next();
+
+
 })
 
 
