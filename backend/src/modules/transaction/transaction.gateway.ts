@@ -70,7 +70,7 @@ const saveSell = async (payload: Transaction) => {
                 `${payload.staffInfo!.person!.name} ${payload.staffInfo!.person!.surname} ${payload.staffInfo!.person!.lastname || ``}`,
             charge: payload.charge,
         }
-        if(payload.sendEmail)
+        if (payload.sendEmail)
             sendTicket(ticketPayload, transactionRow[0].creation_date, payload.totalAmount, costumerRow[0].email);
         return !!transactionRow[0].id;
     } catch (error) {
@@ -91,14 +91,14 @@ const saveReStock = async (payload: Transaction) => {
         if (!payload.supplierInfo?.id) {
             const { rows: personRow } = await client.query(`insert into people (name, surname, lastname) 
             values($1, $2, $3) returning id;`, [
-                payload.clientInfo!.person.name,
-                payload.clientInfo!.person.surname,
-                payload.clientInfo!.person.lastname,
+                payload.supplierInfo!.person.name,
+                payload.supplierInfo!.person.surname,
+                payload.supplierInfo!.person.lastname,
             ]);
             if (!personRow[0]?.id) throw Error(Errors.ERROR_SAVING);
             payload.peopleId = personRow[0].id;
             const { rows: supplierRow } = await client.query(`insert into suppliers(contact, people_id) 
-                values($1, $2, $3) returning id;`, [
+                values($1, $2) returning id;`, [
                 payload.supplierInfo!.contact,
                 payload.peopleId,
             ]);
@@ -108,7 +108,7 @@ const saveReStock = async (payload: Transaction) => {
         } else {
             throw Error(Errors.ERROR_SAVING);
         }
-        const query = `insert into transaction(creation_date, payment_date, total_amount, transaction_types_id, staff_id, people_id) 
+        const query = `insert into transactions(creation_date, payment_date, total_amount, transaction_types_id, staff_id, people_id) 
         values(CURRENT_TIMESTAMP AT TIME ZONE 'America/Mexico_City', CURRENT_TIMESTAMP AT TIME ZONE 'America/Mexico_City', $1, 3, $2, $3) returning id;`;
         const { rows: transactionRow } = await client.query(query, [
             payload.totalAmount,
@@ -123,10 +123,11 @@ const saveReStock = async (payload: Transaction) => {
                 product.id,
                 product.quantitySold,
             ]);
-            const { rows: productRows } = await client.query(`update products set quantity = quantity + $1 returning id, quantity, name;`, [
-                product.quantitySold
+            const { rows: productRows } = await client.query(`update products set quantity = quantity + $1 where id = $2 returning id, quantity, name;`, [
+                product.quantitySold,
+                product.id
             ])
-            if (productRows[0]?.id) throw Error(Errors.ERROR_UPDATING);
+            if (!productRows[0]?.id) throw Error(Errors.ERROR_UPDATING);
             if (productRows[0]?.quantity < 4) {
                 const { rows: managerRow } = await client.query(`select email from staff where is_manager = true;`)
                 sendNotification(managerRow[0]?.email, productRows[0]?.name);
@@ -181,7 +182,7 @@ const saveLayaway = async (payload: Transaction) => {
                 `${payload.staffInfo!.person!.name} ${payload.staffInfo!.person!.surname} ${payload.staffInfo!.person!.lastname || ``}`,
             charge: payload.charge,
         }
-        if(payload.sendEmail)
+        if (payload.sendEmail)
             sendTicket(ticketPayload, transactionRow[0].creation_date, payload.totalAmount, clientRow[0].email);
         return !!transactionRow[0].id;
     } catch (error) {
