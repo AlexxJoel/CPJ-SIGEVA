@@ -21,7 +21,7 @@ const router = createRouter({
                 },{
                     path: 'providersProduct',
                     name: 'providersProductAdmin',
-                    component: () => import('../views/admin/providersProducts/providerProductsList.vue'),
+                    component: () => import('../views/admin/providersProducts/providerProductsUser.vue'),
                 },
                 {
                     path: ":pathMatch(.*)*",

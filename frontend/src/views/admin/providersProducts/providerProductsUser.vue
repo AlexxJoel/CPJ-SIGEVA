@@ -1,6 +1,10 @@
 <script setup lang="ts">
 //pagination with mock data
 import {computed, ref} from "vue";
+import AddProviderUser from "./addProviderUser.vue";
+
+// let modalVisible = ref(false);
+// function showModal() {modalVisible.value = true;}
 
 const items = ref([{
   id: "1",
@@ -279,11 +283,11 @@ const goToPage = (page: number) => {
         <div class="input-group">
           <input type="text" class="form-control" placeholder="Buscar proveedor" aria-label="Buscar proveedor"
                  v-model="search">
-          <button class="btn btn-primary text-secondary" type="button">Buscar</button>
+          <button class="btn btn-primary text-secondary" type="button" >Buscar</button>
         </div>
       </div>
       <div class="d-flex align-items-end justify-content-end mt-2 mt-md-0">
-        <button class="btn btn-primary text-secondary w-100" type="button">Agregar proveedor</button>
+        <button class="btn btn-primary text-secondary w-100" type="button" data-bs-toggle="modal" data-bs-target="#addProviderModal" >Agregar proveedor</button>
       </div>
     </div>
 
@@ -347,6 +351,8 @@ const goToPage = (page: number) => {
         </ul>
       </nav>
     </footer>
+
+    <AddProviderUser/>
 
   </div>
 </template>
