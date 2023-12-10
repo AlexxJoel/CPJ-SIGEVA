@@ -61,7 +61,7 @@ router.beforeEach((to, from, next) => {
 
     if (to.matched.some(record => record.meta.requiresAuth)) {
         if (!token) {
-            next('/login');
+            next('/');
         } else {
             if (to.meta.role && to.meta.role !== role) {
                 if (role === 'Admin') {
