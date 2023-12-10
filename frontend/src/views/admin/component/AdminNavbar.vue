@@ -38,7 +38,7 @@
             </router-link>
           </li>
           <li>
-            <router-link class="nav-link px-0 px-md-2" active-class="text-primary fw-bold" :to="{ name: ''}">Inventario
+            <router-link class="nav-link px-0 px-md-2" active-class="text-primary fw-bold" :to="{ name: 'products'}">Inventario
             </router-link>
           </li>
           <li>
