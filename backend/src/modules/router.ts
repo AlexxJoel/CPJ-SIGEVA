@@ -3,11 +3,13 @@ import ProductRoutes from "./product/product.routes"
 import CategoryRoutes from "./category/category.routes"
 import StaffRoutes from "./staff/staff.routes"
 import UserRoutes from "./user/user.routes"
+import ClientRouter from "./client/client.routes"
 
 export default {
     AuthRoutes,
     ProductRoutes,
     CategoryRoutes,
     StaffRoutes,
-    UserRoutes
+    UserRoutes,
+    ClientRouter,
 };
