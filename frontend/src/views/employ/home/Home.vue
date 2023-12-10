@@ -2,7 +2,7 @@
   <div class="container">
     <div class="row">
       <div class="col-12">
-        <h1>Home admin</h1>
+        <h1>Home employ</h1>
       </div>
     </div>
   </div>

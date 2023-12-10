@@ -29,7 +29,7 @@ export const enum Errors {
 
 const errors: { [x: string]: ResponseApi<undefined> } = {
     'Bad Request': {code: 400, error: true, message: 'Bad Request'},
-    'Incorrect credentials': {code: 400, error: true, message: 'Incorrect credentials check your data'},
+    'Incorrect credentials': {code: 403, error: true, message: 'Incorrect credentials check your data'},
     'Missing id': {code: 400, error: true, message: 'Missing id'},
     'Missing fields': {code: 400, error: true, message: 'Missing fields'},
     'Invalid fields': {code: 400, error: true, message: 'Invalid fields'},
