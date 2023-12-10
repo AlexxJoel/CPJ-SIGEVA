@@ -5,6 +5,7 @@ import StaffRoutes from "./staff/staff.routes"
 import UserRoutes from "./user/user.routes"
 import ClientRouter from "./client/client.routes"
 import SupplierRoutes from "./supplier/supplier.routes"
+import TransactionRoutes from "./transaction/transaction.routes"
 
 export default {
     AuthRoutes,
@@ -14,4 +15,5 @@ export default {
     UserRoutes,
     ClientRouter,
     SupplierRoutes,
+    TransactionRoutes,
 };
