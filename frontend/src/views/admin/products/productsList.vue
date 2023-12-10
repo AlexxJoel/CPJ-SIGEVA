@@ -37,7 +37,7 @@ const items = ref([]);
 
 const paginator = ref({
     currentPage: 1,
-    itemsPerPage: 12,
+    itemsPerPage: 8,
 });
 
 const search = ref("");
