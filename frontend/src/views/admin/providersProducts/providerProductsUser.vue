@@ -3,8 +3,6 @@
 import {computed, ref} from "vue";
 import AddProviderUser from "./addProviderUser.vue";
 
-// let modalVisible = ref(false);
-// function showModal() {modalVisible.value = true;}
 
 const items = ref([{
   id: "1",
