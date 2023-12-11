@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import api from "../../../config/http-client.gateway.ts";
-import { onMounted, ref, inject } from "vue";
+import { onMounted, ref, inject, watch } from "vue";
 const Swal = inject("$swal");
 const getProducts = async () => {
   try {
@@ -27,13 +27,17 @@ const getClients = async () => {
 
 onMounted(getProducts);
 onMounted(getClients);
-
+const isButtonDisabled = ref(true);
 const onSelectedClient = (clientId: number) => {
-  // const json = JSON.parse(JSON.stringify(clients.value))
-  selectedClient.value = clients.value.find(
-    (ele) => ele.id == parseInt(clientId)
-  );
-  console.log(selectedClient.value);
+  if (clientId == "none" && selectedClient.value) {
+    selectedClient.value = {};
+  } else {
+    // const json = JSON.parse(JSON.stringify(clients.value))
+    selectedClient.value = clients.value.find(
+      (ele) => ele.id == parseInt(clientId)
+    );
+    console.log(selectedClient.value);
+  }
 };
 
 const calculateSubtotalCost = () => {
@@ -81,6 +85,17 @@ const selectedClient = ref({});
 const selectedProducts = ref([]);
 const subtotal = ref();
 const total = ref();
+const needRegistration = ref(false);
+const selectClientRef = ref(null);
+const dataUserForm = ref({
+  phoneNumber: "",
+  email: "",
+  person: {
+    name: "",
+    lastname: "",
+    surname: "",
+  },
+});
 const payloadForSale = {
   totalAmount: 0.0,
   staffId: 0,
@@ -107,14 +122,83 @@ const saveSale = async () => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         const res = await api.doPost("/sell", payloadForSale);
-        console.log("respuerta de la vent ",res);
-        
+        console.log("respuerta de la vent ", res);
+        if (res.data.data) {
+          Swal.fire({
+            icon: "success",
+            title: "Acción realizada correctamente",
+            confirmButtonText: "Aceptar",
+          });
+        }
+        getClients();
+        getProducts();
+        selectedClient.value = {};
+        selectedProducts.value = [];
+        subtotal.value = null;
+        total.value = null;
+        selectClientRef.value.selectedIndex = 0;
       }
     });
   } catch (error) {
     console.log(error);
   }
 };
+
+const saveSaleNewClient = async () => {
+  try {
+    payloadForSale.totalAmount = total.value.toFixed(2);
+    payloadForSale.staffId = 1;
+    payloadForSale.clientInfo = dataUserForm.value;
+    payloadForSale.charge = selectedProducts.value;
+    Swal.fire({
+      title: "¿Segura que desea realizar la acción?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Aceptar",
+      cancelButtonText: "Cancelar",
+      reverseButtons: true,
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        const res = await api.doPost("/sell", payloadForSale);
+        console.log("respuerta de la vent ", res);
+        if (res.data.data) {
+          Swal.fire({
+            icon: "success",
+            title: "Acción realizada correctamente",
+            confirmButtonText: "Aceptar",
+          });
+        }
+        getClients();
+        getProducts();
+        dataUserForm.value = {
+          phoneNumber: "",
+          email: "",
+          person: {
+            name: "",
+            lastname: "",
+            surname: "",
+          },
+        };
+        selectedProducts.value = [];
+        subtotal.value = null;
+        total.value = null;
+      }
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+watch([() => selectedClient.value, () => selectedProducts.value], () => {
+  // Verifica si tanto selectedClient como selectedProducts tienen valores
+  isButtonDisabled.value =
+    !selectedClient.value || selectedProducts.value.length === 0;
+});
+watch([() => needRegistration.value], () => {
+  selectedClient.value = {};
+});
 </script>
 
 <template>
@@ -142,6 +226,7 @@ const saveSale = async () => {
                     product.category.name
                   }}</span>
                   <p>${{ product.uniPrice }}</p>
+                  <p><strong>Stock: </strong>{{ product.quantity }}</p>
                   <p>{{ product.description }}</p>
                 </td>
                 <td>
@@ -157,6 +242,7 @@ const saveSale = async () => {
                       v-model="product.quantitySold"
                       @change="addProducts(product.id, product.quantitySold)"
                       min="0"
+                      :max="product.quantity"
                     />
                   </div>
                 </td>
@@ -169,59 +255,138 @@ const saveSale = async () => {
         <div class="card ms-5 shadow">
           <div class="card-body">
             <h5 class="card-title">Datos del cliente</h5>
-            <div class="form-check mb-3">
+            <div class="form-check">
               <input
                 class="form-check-input"
-                type="radio"
-                name="flexRadioDefault"
-                id="flexRadioDefault1"
+                type="checkbox"
+                v-model="needRegistration"
+                id="flexCheckDefault"
               />
-              <label class="form-check-label" for="flexRadioDefault1">
-                Registrar nuevo cliente
+              <label class="form-check-label" for="flexCheckDefault">
+                ¿Necesita registro?
               </label>
             </div>
-            <label for="exampleFormControlInput1" class="form-label"
-              >Cliente</label
-            >
-            <select
-              class="form-select"
-              aria-label="Default select example"
-              @input="onSelectedClient($event.target.value)"
-            >
-              <option selected>Selecciona un cliente</option>
+            <div v-if="needRegistration">
+              <div class="container mt-2">
+                <h4 class="mb-4">Registro de cliente</h4>
+                <form>
+                  <div class="mb-3">
+                    <label for="telefono" class="form-label"
+                      >Número de Teléfono</label
+                    >
+                    <input
+                      type="tel"
+                      class="form-control"
+                      id="telefono"
+                      pattern="[0-9]+"
+                      placeholder="Ingresa tu número de teléfono"
+                      required
+                      v-model="dataUserForm.phoneNumber"
+                    />
+                  </div>
 
-              <option
-                v-for="client in clients"
-                :value="client.id"
-                :key="client.name"
+                  <div class="mb-3">
+                    <label for="correo" class="form-label"
+                      >Correo Electrónico</label
+                    >
+                    <input
+                      type="email"
+                      class="form-control"
+                      id="correo"
+                      placeholder="Ingresa tu correo electrónico"
+                      v-model="dataUserForm.email"
+                    />
+                  </div>
+
+                  <div class="mb-3">
+                    <label for="nombre" class="form-label">Nombre</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="nombre"
+                      placeholder="Ingresa tu nombre"
+                      v-model="dataUserForm.person.name"
+                    />
+                  </div>
+
+                  <div class="mb-3">
+                    <label for="apellidoPaterno" class="form-label"
+                      >Apellido Paterno</label
+                    >
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="apellidoPaterno"
+                      placeholder="Ingresa tu apellido paterno"
+                      v-model="dataUserForm.person.lastname"
+                    />
+                  </div>
+
+                  <div class="mb-3">
+                    <label for="apellidoMaterno" class="form-label"
+                      >Apellido Materno</label
+                    >
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="apellidoMaterno"
+                      placeholder="Ingresa tu apellido materno"
+                      v-model="dataUserForm.person.surname"
+                    />
+                  </div>
+                </form>
+              </div>
+            </div>
+
+            <div v-if="!needRegistration">
+              <label for="exampleFormControlInput1" class="form-label"
+                >Cliente</label
               >
-                <span class="font-weight-bold">Nombre:</span>
+              <select
+                class="form-select"
+                aria-label="Default select example"
+                @input="onSelectedClient($event.target.value)"
+                ref="selectClientRef"
+              >
+                <option selected value="none" key="none">
+                  Selecciona un cliente
+                </option>
+
+                <option
+                  v-for="client in clients"
+                  :value="client.id"
+                  :key="client.name"
+                >
+                  <span class="font-weight-bold">Nombre:</span>
+                  {{
+                    client.person.name + " " +
+                    client.person.lastname + " " + 
+                    client.person.surname
+                  }}
+                </option>
+              </select>
+              <div class="mt-2">
+                <strong> Nombre:</strong>
+                {{ selectedClient.person ? selectedClient.person.name : "" }}
+              </div>
+              <div>
+                <strong>Apellido paterno:</strong>
                 {{
-                  client.person.name +
-                  client.person.lastname +
-                  client.person.surname
+                  selectedClient.person ? selectedClient.person.lastname : ""
                 }}
-              </option>
-            </select>
-            <div class="mt-2">
-              <strong> Nombre:</strong>
-              {{ selectedClient.person ? selectedClient.person.name : "" }}
-            </div>
-            <div>
-              <strong>Apellido paterno:</strong>
-              {{ selectedClient.person ? selectedClient.person.lastname : "" }}
-            </div>
-            <div>
-              <strong>Apellido materno:</strong>
-              {{ selectedClient.person ? selectedClient.person.surname : "" }}
-            </div>
-            <div>
-              <strong>Correo:</strong>
-              {{ selectedClient ? selectedClient.email : "" }}
-            </div>
-            <div>
-              <strong>Teléfono:</strong>
-              {{ selectedClient ? selectedClient.phoneNombre : "" }}
+              </div>
+              <div>
+                <strong>Apellido materno:</strong>
+                {{ selectedClient.person ? selectedClient.person.surname : "" }}
+              </div>
+              <div>
+                <strong>Correo:</strong>
+                {{ selectedClient ? selectedClient.email : "" }}
+              </div>
+              <div>
+                <strong>Teléfono:</strong>
+                {{ selectedClient ? selectedClient.phoneNumber : "" }}
+              </div>
             </div>
           </div>
         </div>
@@ -245,8 +410,18 @@ const saveSale = async () => {
             </div>
             <div class="text-center">
               <button
-                class="btn btn-primary text-secondary"
+                class="btn btn-primary text-secondary mt-3"
                 @click="saveSale()"
+                :disabled="isButtonDisabled"
+                v-if="!needRegistration"
+              >
+                Confirmar compra
+              </button>
+              <button
+                class="btn btn-primary text-secondary mt-3"
+                @click="saveSaleNewClient()"
+                
+                v-if="needRegistration"
               >
                 Confirmar compra
               </button>
