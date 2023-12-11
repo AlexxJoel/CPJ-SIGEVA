@@ -8,7 +8,7 @@ const getProducts = async () => {
     response.data.data.map((element) => {
       element.quantitySold = 0;
     });
-    items.value = response.data.data;
+    items.value = response.data.data.filter((obj) => obj.quantity !== 0 );
     console.log(response.data.data);
   } catch (error) {
     console.log(error);
@@ -25,10 +25,23 @@ const getClients = async () => {
   }
 };
 
+const getStaff = async () => {
+  try {
+    const response = await api.doGet("/pageable/staff");
+    staff.value = response.data.data;
+    console.log(response.data.data);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 onMounted(getProducts);
 onMounted(getClients);
+onMounted(getStaff);
+
 const isButtonDisabled = ref(true);
 const isButtonDisabled2 = ref(true);
+const isButtonDisabled3 = ref(true);
 const onSelectedClient = (clientId: number) => {
   if (clientId == "none" && selectedClient.value) {
     selectedClient.value = {};
@@ -42,6 +55,19 @@ const onSelectedClient = (clientId: number) => {
     } else {
       descount.value = 0;
     }
+    console.log(selectedClient.value);
+  }
+};
+
+const onSelectedEmploye = (employeId: number) => {
+  if (employeId == "none" && selectedEmploye.value) {
+    selectedEmploye.value = {};
+  } else {
+    // const json = JSON.parse(JSON.stringify(clients.value))
+    selectedEmploye.value = staff.value.find(
+      (ele) => ele.id == parseInt(employeId)
+    );
+    descount.value = 0.01;
     console.log(selectedClient.value);
   }
 };
@@ -98,7 +124,9 @@ const addProducts = (productId: number, quantitySold: number) => {
 
 const items = ref([]);
 const clients = ref([]);
+const staff = ref([]);
 const selectedClient = ref({});
+const selectedEmploye = ref({});
 const selectedProducts = ref([]);
 const subtotal = ref();
 const total = ref();
@@ -119,6 +147,13 @@ const payloadForSale = {
   totalAmount: 0.0,
   staffId: 0,
   clientInfo: {},
+  charge: [],
+  sendEmail: true,
+};
+const payloadForSaleEmploye = {
+  totalAmount: 0.0,
+  staffId: 0,
+  staffInfo: {},
   charge: [],
   sendEmail: true,
 };
@@ -213,22 +248,91 @@ const saveSaleNewClient = async () => {
   }
 };
 
+const saveSaleStaff = async () => {
+  try {
+    payloadForSaleEmploye.totalAmount = total.value.toFixed(2);
+    payloadForSaleEmploye.staffId = 1;
+    payloadForSaleEmploye.staffInfo = selectedEmploye.value;
+    payloadForSaleEmploye.charge = selectedProducts.value;
+    payloadForSaleEmploye.sendEmail = needEmail.value;
+    Swal.fire({
+      title: "¿Segura que desea realizar la acción?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Aceptar",
+      cancelButtonText: "Cancelar",
+      reverseButtons: true,
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        const res = await api.doPost("/sell", payloadForSaleEmploye);
+        console.log("respuerta de la vent ", res);
+        if (res.data.data) {
+          Swal.fire({
+            icon: "success",
+            title: "Acción realizada correctamente",
+            confirmButtonText: "Aceptar",
+          });
+        }
+        getClients();
+        getProducts();
+        selectedClient.value = {};
+        selectedProducts.value = [];
+        subtotal.value = null;
+        total.value = null;
+        selectClientRef.value.selectedIndex = 0;
+      }
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 watch([() => selectedClient.value, () => selectedProducts.value], () => {
   // Verifica si tanto selectedClient como selectedProducts tienen valores
   isButtonDisabled.value =
     !selectedClient.value || selectedProducts.value.length === 0;
 });
+watch([() => selectedEmploye.value, () => selectedProducts.value], () => {
+  // Verifica si tanto selectedClient como selectedProducts tienen valores
+  isButtonDisabled3.value =
+    !selectedEmploye.value || selectedProducts.value.length === 0;
+});
 watch([() => needRegistration.value], () => {
   selectedClient.value = {};
 });
-watch([() => dataUserForm.value.email, () => dataUserForm.value.phoneNumber, () => dataUserForm.value.person.name, () => dataUserForm.value.person.lastname, () => dataUserForm.value.person.surname, () => selectedProducts.value], () => {
-  isButtonDisabled2.value =
-    !dataUserForm.value.email ||
-    !dataUserForm.value.phoneNumber ||
-    !dataUserForm.value.person.name ||
-    !dataUserForm.value.person.lastname ||
-    !dataUserForm.value.person.surname || selectedProducts.value.length === 0;
-});
+watch(
+  [
+    () => dataUserForm.value.email,
+    () => dataUserForm.value.phoneNumber,
+    () => dataUserForm.value.person.name,
+    () => dataUserForm.value.person.lastname,
+    () => dataUserForm.value.person.surname,
+    () => selectedProducts.value,
+  ],
+  () => {
+    isButtonDisabled2.value =
+      !dataUserForm.value.email ||
+      !dataUserForm.value.phoneNumber ||
+      !dataUserForm.value.person.name ||
+      !dataUserForm.value.person.lastname ||
+      !dataUserForm.value.person.surname ||
+      selectedProducts.value.length === 0;
+  }
+);
+
+const selectedTab = ref("client");
+const handleTabClient = () => {
+  selectedTab.value = 'client'
+  selectedClient.value = {}
+  selectedEmploye.value = {}
+}
+const handleTabStaff = () => {
+  selectedTab.value = 'staff'
+  selectedClient.value = {}
+  selectedEmploye.value = {}
+}
 </script>
 
 <template>
@@ -252,7 +356,7 @@ watch([() => dataUserForm.value.email, () => dataUserForm.value.phoneNumber, () 
                 <th scope="row">1</th>
                 <td>
                   <h5>{{ product.name }}</h5>
-                  <span class="badge text-bg-primary">{{
+                  <span class="badge bg-primary">{{
                     product.category.name
                   }}</span>
                   <p>${{ product.uniPrice }}</p>
@@ -283,7 +387,33 @@ watch([() => dataUserForm.value.email, () => dataUserForm.value.phoneNumber, () 
       </div>
       <div class="col">
         <div class="card ms-5 shadow">
-          <div class="card-body">
+          <div class="card-header">
+            <ul class="nav nav-pills card-header-pills">
+              <li class="nav-item" @click="handleTabClient">
+                <a
+                  class="nav-link btn"
+                  :class="
+                    selectedTab === 'client'
+                      ? 'active bg-primary text-secondary'
+                      : 'text-black'
+                  "
+                  >Cliente</a
+                >
+              </li>
+              <li class="nav-item" @click="handleTabStaff">
+                <a
+                  class="nav-link btn"
+                  :class="
+                    selectedTab === 'staff'
+                      ? 'active bg-primary text-secondary'
+                      : 'text-black'
+                  "
+                  >Personal</a
+                >
+              </li>
+            </ul>
+          </div>
+          <div class="card-body" v-if="selectedTab === 'client'">
             <h5 class="card-title">Datos del cliente</h5>
             <div class="form-check">
               <input
@@ -421,6 +551,59 @@ watch([() => dataUserForm.value.email, () => dataUserForm.value.phoneNumber, () 
               </div>
             </div>
           </div>
+
+          <div class="card-body" v-if="selectedTab === 'staff'">
+            <h5 class="card-title">Datos del empleado</h5>
+
+            <div>
+              <label for="exampleFormControlInput1" class="form-label"
+                >Empleado</label
+              >
+              <select
+                class="form-select"
+                aria-label="Default select example"
+                @input="onSelectedEmploye($event.target.value)"
+                ref="selectClientRef"
+              >
+                <option selected value="none" key="none">
+                  Selecciona un empleado
+                </option>
+
+                <option
+                  v-for="employe in staff"
+                  :value="employe.id"
+                  :key="employe.id"
+                >
+                  <span class="font-weight-bold"></span>
+                  {{
+                    employe.person.name +
+                    " " +
+                    employe.person.lastname +
+                    " " +
+                    employe.person.surname
+                  }}
+                </option>
+              </select>
+              <div class="mt-2">
+                <strong> Nombre:</strong>
+                {{ selectedEmploye.person ? selectedEmploye.person.name : "" }}
+              </div>
+              <div>
+                <strong>Apellido paterno:</strong>
+                {{
+                  selectedEmploye.person ? selectedEmploye.person.lastname : ""
+                }}
+              </div>
+              <div>
+                <strong>Apellido materno:</strong>
+                {{ selectedEmploye.person ? selectedEmploye.person.surname : "" }}
+              </div>
+              <div>
+                <strong>Correo:</strong>
+                {{ selectedEmploye ? selectedEmploye.email : "" }}
+              </div>
+            </div>
+          </div>
         </div>
 
         <div class="card ms-5 mt-2 shadow">
@@ -462,7 +645,7 @@ watch([() => dataUserForm.value.email, () => dataUserForm.value.phoneNumber, () 
                 class="btn btn-primary text-secondary mt-3"
                 @click="saveSale()"
                 :disabled="isButtonDisabled"
-                v-if="!needRegistration"
+                v-if="!needRegistration && selectedTab !== 'staff'"
               >
                 Confirmar compra
               </button>
@@ -470,7 +653,15 @@ watch([() => dataUserForm.value.email, () => dataUserForm.value.phoneNumber, () 
                 class="btn btn-primary text-secondary mt-3"
                 @click="saveSaleNewClient()"
                 :disabled="isButtonDisabled2"
-                v-if="needRegistration"
+                v-if="needRegistration && selectedTab !== 'staff'"
+              >
+                Confirmar compra
+              </button>
+              <button
+                class="btn btn-primary text-secondary mt-3"
+                @click="saveSaleStaff()"
+                :disabled="isButtonDisabled3"
+                v-if="selectedTab === 'staff'"
               >
                 Confirmar compra
               </button>
