@@ -12,27 +12,24 @@ let response;
 const getClients = async () => {
   try {
     response = await api.doGet("/clients");
-    console.log(response.data.data);
     items.value = response.data.data;
   } catch (error) {
-    console.log("soy el erro", error);
+    console.log( error);
   }
 };
 const onSelectedId = ref();
 
 const onSelected = (cardId: number) => {
-  console.log("card", cardId);
   onSelectedId.value = cardId;
 };
 
 onMounted(getClients);
 
 const items = ref([]);
-console.log("soy el item", items.value);
 
 const paginator = ref({
   currentPage: 1,
-  itemsPerPage: 12,
+  itemsPerPage: 9,
 });
 
 const search = ref("");
@@ -67,34 +64,7 @@ const reloadClients = () => {
   getClients();
 };
 
-// const changeStatus = (cardId: number) => {
-//   console.log("idSelected", cardId);
 
-//   Swal.fire({
-//     title: "¿Segura que desea realizar la acción?",
-//     icon: "warning",
-//     showCancelButton: true,
-//     confirmButtonColor: "#3085d6",
-//     cancelButtonColor: "#d33",
-//     confirmButtonText: "Aceptar",
-//     cancelButtonText: "Cancelar",
-//     reverseButtons: true,
-//   }).then(async (result) => {
-//     if (result.isConfirmed) {
-//       const res = await api.doDelete(`/clients/${cardId}`);
-//       console.log("resChange", res);
-//       if (res.data.data) {
-//         Swal.fire({
-//           icon: "success",
-//           title: "Acción realizada correctamente",
-//           confirmButtonText: "Aceptar",
-//         });
-//       }
-//     }
-
-//     getEmployes();
-//   });
-// };
 </script>
 
 <template>
@@ -130,80 +100,56 @@ const reloadClients = () => {
     </div>
 
     <div v-if="paginatedCards.length > 0">
-      <main class="row row-cols-2 row-cols-md-3 row-cols-lg-6 g-2 g-lg-3">
-        <div v-for="card in paginatedCards" :key="card.id">
-          <div class="col">
-            <div class="card itemList position-relative">
-              <div class="dropdown dropstart">
-                <button
-                  class="btn position-absolute top-0 end-0 m-0"
-                  type="button"
-                  data-bs-toggle="dropdown"
-                  aria-expanded="false"
+      <main class="row row-cols-1 row-cols-md-3 row-cols-lg-5 g-2 g-lg-3">
+      <div v-for="card in paginatedCards" :key="card.id" class="col">
+        <div class="card itemList position-relative h-100">
+          <div class="dropdown dropstart">
+            <button
+              class="btn position-absolute top-0 end-0 m-0"
+              type="button"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+            >
+              <i class="pi pi-ellipsis-v"></i>
+            </button>
+            <!-- Menú de opciones -->
+            <ul class="dropdown-menu">
+              <li>
+                <a
+                  class="dropdown-item"
+                  @click.prevent="() => onSelected(card.id)"
+                  data-bs-toggle="modal"
+                  data-bs-target="#ModalUpdateClient"
                 >
-                  <i class="pi pi-ellipsis-v"></i>
-                </button>
-                <!-- Menú de opciones -->
-                <ul class="dropdown-menu">
-                  <li>
-                    <a
-                      class="dropdown-item"
-                      @click.prevent="() => onSelected(card.id)"
-                      data-bs-toggle="modal"
-                      data-bs-target="#ModalUpdateClient"
-                      
-                    >
-                      Editar
-                    </a>
-                  </li>
-                 
-                  <!-- Agrega más opciones según tus necesidades -->
-                </ul>
-              </div>
-              <div class="card-body">
-                <div class="d-flex justify-content-center">
-                  <!-- <img
-                    src="https://via.placeholder.com/120"
-                    class="img-fluid"
-                    alt="..."
-                  /> -->
-                  <i class="pi pi-th-large my-3" style="font-size: 5rem"></i>
-                </div>
-                <p class="card-text mt-1 m-0 fw-semibold" style="height: auto">
-                  {{ card.person.name }} {{ card.person.surname }} {{ card.person.lastname }}
-                </p>
-                <span class="card-text mt-2 fw-medium">Email: </span>
-                <p class="card-text m-0 p-0 text-truncate">
-                  {{ card.email }}
-                </p>
-                <span class="card-text mt-2 fw-medium">Tel: </span>
-                <p class="card-text m-0 p-0 text-truncate">
-                  {{ card.phoneNumber }}
-                </p>
-                <div class="d-flex justify-content-left mt-2">
-                 
-                </div>
-              </div>
+                  Editar
+                </a>
+              </li>
+              <!-- Agrega más opciones según tus necesidades -->
+            </ul>
+          </div>
+          <div class="card-body d-flex flex-column" style="font-size: 1.1rem; width: 100%;">
+            <div class="d-flex justify-content-center">
+              <img src="https://cdn-icons-png.flaticon.com/512/1077/1077114.png" class="img-fluid" alt="...">
+            </div>
+
+            <p class="card-text mt-1 m-0 fw-semibold" style="height: auto">
+              {{ card.person.name }} {{ card.person.surname }} {{ card.person.lastname }}
+            </p>
+            <span class="card-text mt-2 fw-medium">Email: </span>
+            <p class="card-text m-0 p-0 text-truncate">
+              {{ card.email }}
+            </p>
+            <span class="card-text mt-2 fw-medium">Tel: </span>
+            <p class="card-text m-0 p-0 text-truncate">
+              {{ card.phoneNumber }}
+            </p>
+            <div class="d-flex justify-content-left mt-2">
+              <!-- Contenido adicional si es necesario -->
             </div>
           </div>
         </div>
-        <!--      <div v-for="i in 10" :key="i" class="col">
-                <div class="card" aria-hidden="true">
-                  <div class="card-body">
-                    <div class="placeholder-glow d-flex justify-content-center">
-                      <img class="placeholder img-fluid" width="120" height="120" alt=".." src="#"/>
-                    </div>
-                  </div>
-                  <p class="card-text mt-1 ms-3 placeholder-glow">
-                    <span class="placeholder col-8"></span>
-                  </p>
-                  <div class="d-flex justify-content-center m-3">
-                    <button class="btn btn-primary text-secondary w-100 placeholder disabled" type="button"
-                            aria-disabled="true"></button>
-                  </div>
-                </div>
-              </div>-->
-      </main>
+      </div>
+    </main>
     </div>
     <div v-else>
       <div class="text-center mt-5">
