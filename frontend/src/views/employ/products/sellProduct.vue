@@ -221,13 +221,13 @@ watch([() => selectedClient.value, () => selectedProducts.value], () => {
 watch([() => needRegistration.value], () => {
   selectedClient.value = {};
 });
-watch([() => dataUserForm.value.email, () => dataUserForm.value.phoneNumber, () => dataUserForm.value.person.name, () => dataUserForm.value.person.lastname, () => dataUserForm.value.person.surname], () => {
+watch([() => dataUserForm.value.email, () => dataUserForm.value.phoneNumber, () => dataUserForm.value.person.name, () => dataUserForm.value.person.lastname, () => dataUserForm.value.person.surname, () => selectedProducts.value], () => {
   isButtonDisabled2.value =
     !dataUserForm.value.email ||
     !dataUserForm.value.phoneNumber ||
     !dataUserForm.value.person.name ||
     !dataUserForm.value.person.lastname ||
-    !dataUserForm.value.person.surname;
+    !dataUserForm.value.person.surname || selectedProducts.value.length === 0;
 });
 </script>
 
