@@ -46,14 +46,14 @@
             </router-link>
           </li>
           <li>
-            <router-link class="nav-link px-0 px-md-2" active-class="text-primary fw-bold" :to="{ name: ''}">Venta</router-link>
+            <router-link class="nav-link px-0 px-md-2" active-class="text-primary fw-bold" :to="{ name: 'homeAdmin'}">Venta</router-link>
           </li>
         </ul>
 
         <!-- link to right-->
         <ul class="navbar-nav ms-auto">
           <li class="nav-item">
-            <router-link class="nav-link" active-class="text-primary fw-bold" to="/">Cerrar sesión</router-link>
+            <button class="nav-link" active-class="text-primary fw-bold" @click="logout">Cerrar sesión</button>
           </li>
         </ul>
 
@@ -62,7 +62,16 @@
   </nav>
 </template>
 
-<script setup>
+<script setup lang="ts">
+import router from '@/router';
+
+
+const logout = () => {
+  localStorage.removeItem("token")
+  localStorage.removeItem("user")
+  router.push("/");
+
+}
 </script>
 
 <style scoped>
