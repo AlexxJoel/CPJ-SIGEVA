@@ -28,6 +28,7 @@ app.use(`/${API}`, Router.UserRoutes);
 app.use(`/${API}`, Router.ClientRouter)
 app.use(`/${API}`, Router.SupplierRoutes);
 app.use(`/${API}`, Router.TransactionRoutes);
+app.use(`/${API}`, Router.TransactionsHistoryRoutes);
 
 app.get('*', (req, res) => res.status(404).send('Page Not Found'))
 export default app;
