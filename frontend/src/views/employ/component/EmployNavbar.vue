@@ -41,7 +41,7 @@
             </router-link>
           </li>
           <li>
-            <router-link class="nav-link px-0 px-md-2" active-class="text-primary fw-bold" :to="{ name: ''}">Venta</router-link>
+            <router-link class="nav-link px-0 px-md-2" active-class="text-primary fw-bold" :to="{ name: 'sales'}">Venta</router-link>
           </li>
         </ul>
 
