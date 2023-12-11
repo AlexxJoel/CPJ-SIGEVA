@@ -5,7 +5,7 @@
     tabindex="-1"
     aria-labelledby="exampleModalLabel"
     aria-hidden="true"
-    ref="saveCategoryModal"
+    ref="updateCategoryModal"
   >
     <div class="modal-dialog">
       <div class="modal-content">
@@ -47,7 +47,7 @@
             type="button"
             class="btn btn-secondary"
             data-bs-dismiss="modal"
-            id="closeSaveCategory"
+            id="closeUpdateCategory"
             @click="$emit('reloadCategories')"
           >
             cerrar
@@ -60,7 +60,7 @@
             Cancelar
           </button>
 
-          <button type="button" class="btn btn-primary" @click="saveCategory">
+          <button type="button" class="btn btn-primary" @click="updateCategory">
             Guardar
           </button>
         </div>
@@ -94,7 +94,7 @@ const getOne = async (cardId: number) => {
   }
 };
 
-const saveCategory = async () => {
+const updateCategory = async () => {
   try {
   console.log("id por props",props.onSelectedId);
 
@@ -110,7 +110,9 @@ const saveCategory = async () => {
       reverseButtons: true,
     }).then(async (result) => {
       if (result.isConfirmed) {
-        const res = await api.doPost("/category", {
+        await getOne(props.onSelectedId)
+        const res = await api.doPut("/category", {
+          id:props.onSelectedId,
           name: category.value.name,
           description: category.value.description,
         });
@@ -122,7 +124,7 @@ const saveCategory = async () => {
           });
         }
         //se obtiene el boton oculto por DOM
-        const btnCloseModal = document.getElementById("closeSaveCategory");
+        const btnCloseModal = document.getElementById("closeUpdateCategory");
         //se verifica que se encontro el elemento
         if (btnCloseModal) {
           //cerramos el modal con el boton oculto

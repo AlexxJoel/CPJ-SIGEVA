@@ -2,32 +2,30 @@
 //pagination with mock data
 import { computed, onMounted, ref, inject } from "vue";
 
-import ModalSaveCategory from "@/views/admin/categories/ModalSaveCategory.vue";
-import ModalUpdateCategory from "@/views/admin/categories/ModalUpdateCategory.vue";
-
 import api from "../../../config/http-client.gateway.ts";
+import ModalSaveStaff from "./modalSaveStaff.vue";
+import ModalUpdateStaff from "./modalUpdateStaff.vue";
 
 const Swal = inject("$swal");
 
 let response;
-const getCategories = async () => {
+const getStaff = async () => {
   try {
-    response = await api.doGet("/pageable/category");
+    response = await api.doGet("/pageable/staff");
+    console.log(response.data.data);
     items.value = response.data.data;
   } catch (error) {
     console.log("soy el erro", error);
   }
 };
+const onSelectedId = ref();
 
-const onSelectedId = ref()
-
-
-const onSelected = (cardId: number)=>{
+const onSelected = (cardId: number) => {
   console.log("card", cardId);
-  
   onSelectedId.value = cardId;
-}
-onMounted(getCategories);
+};
+
+onMounted(getStaff);
 
 const items = ref([]);
 console.log("soy el item", items.value);
@@ -40,8 +38,8 @@ const paginator = ref({
 const search = ref("");
 
 const filterItem = computed(() => {
-  return items.value.filter((item) => {
-    return item.name.toLowerCase().includes(search.value.toLowerCase());
+  return items.value.filter((item) => {    
+    return item.person.name.toLowerCase().includes(search.value.toLowerCase());
   });
 });
 
@@ -61,55 +59,29 @@ const goToPage = (page: number) => {
   window.scrollTo({ top: 0, behavior: "smooth" });
 };
 
-const reloadCategories = () => {
+
+
+const reloadStaff = () => {
   console.log("valiko");
 
-  getCategories();
+  getStaff();
 };
 
-const changeStatus = (cardId: number) => {
-  console.log("idSelected", cardId);
-
-  Swal.fire({
-    title: "¿Segura que desea realizar la acción?",
-    icon: "warning",
-    showCancelButton: true,
-    confirmButtonColor: "#3085d6",
-    cancelButtonColor: "#d33",
-    confirmButtonText: "Aceptar",
-    cancelButtonText: "Cancelar",
-    reverseButtons: true,
-  }).then(async (result) => {
-    if (result.isConfirmed) {
-      const res = await api.doDelete(`/category/${cardId}`);
-      console.log("resChange", res);
-      if (res.data.data) {
-        Swal.fire({
-          icon: "success",
-          title: "Acción realizada correctamente",
-          confirmButtonText: "Aceptar",
-        });
-      }
-    }
-
-    getCategories();
-  });
-};
 </script>
 
 <template>
   <div>
-    <h1 class="h1 text-primary fw-bold">Categorias</h1>
+    <h1 class="h1 text-primary fw-bold">Empleados</h1>
 
     <div class="d-md-flex justify-content-between w-100 mb-3">
       <div class="">
-        <label class="h4 fw-bold">Buscar categoría</label>
+        <label class="h4 fw-bold">Buscar Empleados</label>
         <div class="input-group">
           <input
             type="text"
             class="form-control"
-            placeholder="Buscar categoría"
-            aria-label="Buscar proveedor"
+            placeholder="Buscar empleado"
+            aria-label="Buscar empleado"
             v-model="search"
           />
           <button class="btn btn-primary text-secondary" type="button">
@@ -122,9 +94,9 @@ const changeStatus = (cardId: number) => {
           class="btn btn-primary text-secondary w-100"
           type="button"
           data-bs-toggle="modal"
-          data-bs-target="#ModalSaveCategory"
+          data-bs-target="#ModalSaveStaff"
         >
-          Agregar categoría
+          Agregar empleado
         </button>
       </div>
     </div>
@@ -148,18 +120,14 @@ const changeStatus = (cardId: number) => {
                   <li>
                     <a
                       class="dropdown-item"
-                      data-bs-target="#ModalUpdateCategory"
+                      data-bs-target="#ModalUpdateStaff"
                       data-bs-toggle="modal"
                       @click.prevent="() => onSelected(card.id)"
                     >
                       Editar
                     </a>
                   </li>
-                  <li>
-                    <a class="dropdown-item" @click="changeStatus(card.id)">
-                      {{ card.status ? "Deshabilitar" : "Habilitar" }}
-                    </a>
-                  </li>
+                 
                   <!-- Agrega más opciones según tus necesidades -->
                 </ul>
               </div>
@@ -173,18 +141,18 @@ const changeStatus = (cardId: number) => {
                   <i class="pi pi-th-large my-3" style="font-size: 5rem"></i>
                 </div>
                 <p class="card-text mt-1 m-0 fw-semibold" style="height: auto">
-                  {{ card.name }}
+                  {{ card.person.name }} {{ card.person.surname }} {{ card.person.lastname }}
                 </p>
-                <span class="card-text mt-2 fw-medium">Descripción: </span>
+                <span class="card-text mt-2 fw-medium">Email: </span>
                 <p class="card-text m-0 p-0 text-truncate">
-                  {{ card.description }}
+                  {{ card.email }}
+                </p>
+                <span class="card-text mt-2 fw-medium">Usuario: </span>
+                <p class="card-text m-0 p-0 text-truncate">
+                  {{ card.user.username }}
                 </p>
                 <div class="d-flex justify-content-left mt-2">
-                  <span
-                    class="badge"
-                    :class="card.status ? 'bg-success' : 'bg-danger'"
-                    >{{ card.status ? "Activo" : "Inactivo" }}</span
-                  >
+                 
                 </div>
               </div>
             </div>
@@ -261,8 +229,8 @@ const changeStatus = (cardId: number) => {
         </ul>
       </nav>
     </footer>
-    <ModalSaveCategory @reloadCategories="reloadCategories" :onSelectedId="onSelectedId"/>
-    <ModalUpdateCategory @reloadCategories="reloadCategories"  :onSelectedId="onSelectedId"/>
+     <ModalSaveStaff @reloadStaff="reloadStaff"/>
+    <ModalUpdateStaff @reloadStaff="reloadStaff" :staffs="onSelectedId"/> 
   </div>
 </template>
 
