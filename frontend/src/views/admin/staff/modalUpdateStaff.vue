@@ -38,7 +38,7 @@
                         Cancelar
                     </button>
 
-                    <button type="button" class="btn btn-primary" @click="updateStaff">
+                    <button type="button" class="btn btn-primary" @click="updateStaff" :disabled="!areAllFieldsFilled()">
                         Guardar
                     </button>
                 </div>
@@ -85,6 +85,16 @@ const getOne = async (cardId: number) => {
     }
 };
 
+const areAllFieldsFilled = () => {
+  return (
+    staff.value.birthday &&
+    staff.value.user.username &&
+    staff.value.person.name &&
+    staff.value.person.lastname &&
+    staff.value.person.surname &&
+    staff.value.email
+  );
+};
 const updateStaff = async () => {
     try {
         console.log("id por props", props);

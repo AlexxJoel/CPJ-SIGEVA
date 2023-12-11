@@ -47,7 +47,7 @@
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                         Cancelar
                     </button>
-                    <button type="button" class="btn btn-primary" @click="saveProduct">
+                    <button type="button" class="btn btn-primary" @click="saveProduct" :disabled="!areAllFieldsFilled()">
                         Guardar
                     </button>
                 </div>
@@ -72,6 +72,14 @@ let showModal = ref(true);
 
 const hideModal = () => {
     showModal.value = false;
+};
+const areAllFieldsFilled = () => {
+  return (
+    product.value.name &&
+    product.value.description &&
+    product.value.quantity &&
+    product.value.unitPrice
+  );
 };
 const saveProduct = async () => {
     try {

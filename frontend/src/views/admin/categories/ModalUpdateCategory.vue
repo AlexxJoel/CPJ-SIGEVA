@@ -60,7 +60,7 @@
             Cancelar
           </button>
 
-          <button type="button" class="btn btn-primary" @click="updateCategory">
+          <button type="button" class="btn btn-primary" @click="updateCategory" :disabled="!areAllFieldsFilled()">
             Guardar
           </button>
         </div>
@@ -84,7 +84,12 @@ const category = ref({
   description: "",
 });
 let showModal = ref(true);
-
+const areAllFieldsFilled = () => {
+  return (
+    category.value.description &&
+    category.value.name 
+  );
+};
 const getOne = async (cardId: number) => {
   try {
     const res = await api.doGet(`/category/${cardId}`);
