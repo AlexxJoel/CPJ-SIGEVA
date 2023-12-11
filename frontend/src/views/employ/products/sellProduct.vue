@@ -28,6 +28,7 @@ const getClients = async () => {
 onMounted(getProducts);
 onMounted(getClients);
 const isButtonDisabled = ref(true);
+const isButtonDisabled2 = ref(true);
 const onSelectedClient = (clientId: number) => {
   if (clientId == "none" && selectedClient.value) {
     selectedClient.value = {};
@@ -128,7 +129,7 @@ const saveSale = async () => {
     payloadForSale.staffId = 1;
     payloadForSale.clientInfo = selectedClient.value;
     payloadForSale.charge = selectedProducts.value;
-    payloadForSale.sendEmail = needEmail.value
+    payloadForSale.sendEmail = needEmail.value;
     Swal.fire({
       title: "¿Segura que desea realizar la acción?",
       icon: "warning",
@@ -169,7 +170,7 @@ const saveSaleNewClient = async () => {
     payloadForSale.staffId = 1;
     payloadForSale.clientInfo = dataUserForm.value;
     payloadForSale.charge = selectedProducts.value;
-    payloadForSale.sendEmail = needEmail.value
+    payloadForSale.sendEmail = needEmail.value;
 
     Swal.fire({
       title: "¿Segura que desea realizar la acción?",
@@ -219,6 +220,14 @@ watch([() => selectedClient.value, () => selectedProducts.value], () => {
 });
 watch([() => needRegistration.value], () => {
   selectedClient.value = {};
+});
+watch([() => dataUserForm.value.email, () => dataUserForm.value.phoneNumber, () => dataUserForm.value.person.name, () => dataUserForm.value.person.lastname, () => dataUserForm.value.person.surname], () => {
+  isButtonDisabled2.value =
+    !dataUserForm.value.email ||
+    !dataUserForm.value.phoneNumber ||
+    !dataUserForm.value.person.name ||
+    !dataUserForm.value.person.lastname ||
+    !dataUserForm.value.person.surname;
 });
 </script>
 
@@ -460,6 +469,7 @@ watch([() => needRegistration.value], () => {
               <button
                 class="btn btn-primary text-secondary mt-3"
                 @click="saveSaleNewClient()"
+                :disabled="isButtonDisabled2"
                 v-if="needRegistration"
               >
                 Confirmar compra
