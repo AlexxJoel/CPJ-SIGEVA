@@ -36,8 +36,21 @@ const onSelectedClient = (clientId: number) => {
     selectedClient.value = clients.value.find(
       (ele) => ele.id == parseInt(clientId)
     );
+    if (selectedClient.value.purchasesCount > 3) {
+      descount.value = 0.05;
+    } else {
+      descount.value = 0;
+    }
     console.log(selectedClient.value);
   }
+};
+const calculateDescount = () => {
+  let totalToPay = selectedProducts.value.reduce(
+    (total, item) => total + item.uniPrice * item.quantitySold,
+    0
+  );
+  let totalDescount = totalToPay * descount.value;
+  return totalDescount;
 };
 
 const calculateSubtotalCost = () => {
@@ -46,12 +59,15 @@ const calculateSubtotalCost = () => {
     0
   );
 };
-
 const calculateTotalCost = () => {
-  return selectedProducts.value.reduce(
+  let totalToPay = selectedProducts.value.reduce(
     (total, item) => total + item.uniPrice * item.quantitySold,
     0
   );
+  if (descount.value != 0) {
+    totalToPay = totalToPay - totalToPay * descount.value;
+  }
+  return totalToPay;
 };
 
 const addProducts = (productId: number, quantitySold: number) => {
@@ -85,7 +101,9 @@ const selectedClient = ref({});
 const selectedProducts = ref([]);
 const subtotal = ref();
 const total = ref();
+const descount = ref(0);
 const needRegistration = ref(false);
+const needEmail = ref(false);
 const selectClientRef = ref(null);
 const dataUserForm = ref({
   phoneNumber: "",
@@ -110,6 +128,7 @@ const saveSale = async () => {
     payloadForSale.staffId = 1;
     payloadForSale.clientInfo = selectedClient.value;
     payloadForSale.charge = selectedProducts.value;
+    payloadForSale.sendEmail = needEmail.value
     Swal.fire({
       title: "¿Segura que desea realizar la acción?",
       icon: "warning",
@@ -150,6 +169,8 @@ const saveSaleNewClient = async () => {
     payloadForSale.staffId = 1;
     payloadForSale.clientInfo = dataUserForm.value;
     payloadForSale.charge = selectedProducts.value;
+    payloadForSale.sendEmail = needEmail.value
+
     Swal.fire({
       title: "¿Segura que desea realizar la acción?",
       icon: "warning",
@@ -359,8 +380,10 @@ watch([() => needRegistration.value], () => {
                 >
                   <span class="font-weight-bold">Nombre:</span>
                   {{
-                    client.person.name + " " +
-                    client.person.lastname + " " + 
+                    client.person.name +
+                    " " +
+                    client.person.lastname +
+                    " " +
                     client.person.surname
                   }}
                 </option>
@@ -404,9 +427,26 @@ watch([() => needRegistration.value], () => {
               <strong>Subtotal: </strong>
               <div v-if="subtotal">${{ subtotal.toFixed(2) }} MXN</div>
             </div>
+            <div class="mt-4" v-if="descount">
+              <strong>Descuento: </strong>
+              <div v-if="subtotal">
+                ${{ calculateDescount().toFixed(2) }} MXN
+              </div>
+            </div>
             <div class="mt-4">
               <strong>Total: </strong>
               <div v-if="total">${{ total.toFixed(2) }} MXN</div>
+            </div>
+            <div class="form-check my-3">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                v-model="needEmail"
+                id="flexCheckDefault"
+              />
+              <label class="form-check-label" for="flexCheckDefault">
+                ¿Envíar confirmación?
+              </label>
             </div>
             <div class="text-center">
               <button
@@ -420,7 +460,6 @@ watch([() => needRegistration.value], () => {
               <button
                 class="btn btn-primary text-secondary mt-3"
                 @click="saveSaleNewClient()"
-                
                 v-if="needRegistration"
               >
                 Confirmar compra
