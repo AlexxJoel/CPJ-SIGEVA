@@ -1,18 +1,23 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, inject } from "vue";
-import ModalUpdateCategory from "@/views/admin/categories/ModalUpdateCategory.vue";
+import ModalUpdateProduct from "@/views/admin/products/ModalUpdateProduct.vue";
 import ModalSaveProduct from "@/views/admin/products/ModalSaveProduct.vue";
 
 import api from "../../../config/http-client.gateway.ts";
 
 const Swal = inject("$swal");
 
+const selectedProduct = ref(null);
+
+const editProduct = (product) => {
+    selectedProduct.value = { ...product };
+};
+
 let response;
 const getProducts = async () => {
     try {
         response = await api.doPost(`/pageable/product?name=`);
         items.value = response.data.data;
-        console.log(items.value)
     } catch (error) {
         console.log("Error al obtener productos", error);
 
@@ -32,7 +37,7 @@ const items = ref([]);
 
 const paginator = ref({
     currentPage: 1,
-    itemsPerPage: 12,
+    itemsPerPage: 8,
 });
 
 const search = ref("");
@@ -60,13 +65,10 @@ const goToPage = (page: number) => {
 };
 
 const reloadProduct = () => {
-    console.log("Recargando productos");
     getProducts();
 };
 
 const changeStatus = (productId: number) => {
-    console.log("idSelected", productId);
-
     Swal.fire({
         title: "¿Seguro que desea realizar la acción?",
         icon: "warning",
@@ -79,7 +81,6 @@ const changeStatus = (productId: number) => {
     }).then(async (result) => {
         if (result.isConfirmed) {
             const res = await api.doDelete(`/product/${productId}`);
-            console.log("resChange", res);
             if (res.data.data) {
                 Swal.fire({
                     icon: "success",
@@ -131,7 +132,7 @@ const changeStatus = (productId: number) => {
                                 <ul class="dropdown-menu">
                                     <li>
                                         <a class="dropdown-item" data-bs-target="#ModalUpdateCategory"
-                                            data-bs-toggle="modal" @click="onSelected(card.id)">
+                                            data-bs-toggle="modal" @click="editProduct(card)">
                                             Editar
                                         </a>
                                     </li>
@@ -155,6 +156,11 @@ const changeStatus = (productId: number) => {
                                     <span class="card-text mt-2 fw-medium">Descripción: </span>
                                     <p class="card-text m-0 p-0 text-truncate">
                                         {{ card.description }}
+                                    </p>
+
+                                    <span class="card-text mt-2 fw-medium">Categoria: </span>
+                                    <p class="card-text m-0 p-0 text-truncate">
+                                        {{ card.category.name }}
                                     </p>
                                     <div class="mt-2">
                                         <p class="card-text m-0">
@@ -206,7 +212,7 @@ const changeStatus = (productId: number) => {
             </nav>
         </footer>
         <ModalSaveProduct @reloadProduct="reloadProduct" :onSelectedId="onSelectedId" />
-        <ModalUpdateCategory @reloadProduct="reloadProduct" />
+        <ModalUpdateProduct @reloadProduct="reloadProduct" />
     </div>
 </template>
 

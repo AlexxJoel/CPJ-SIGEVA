@@ -1,11 +1,11 @@
 <template>
-    <div class="modal fade" id="ModalSaveProduct" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true"
-        ref="saveProductModal">
+    <div class="modal fade" id="ModalUpdateProduct" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true"
+        ref="updateProductModal">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="exampleModalLabel">
-                        Registrar producto
+                        Editar producto
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
@@ -30,18 +30,16 @@
                                     v-model="product.unitPrice" />
                             </div>
                             <div class="col">
-                                <label for="productCategory" class="form-label">Categoría</label>
-                                <select class="form-control" id="productCategory" v-model="product.categoriesId">
-                                    <option v-for="category in items" :key="category.id" :value="category.id">{{
-                                        category.name }}</option>
-                                </select>
+                                <label for="productCategorie" class="form-label">Categoría</label>
+                                <input type="number" class="form-control" id="productQuantity" placeholder="10"
+                                    v-model="product.categoriesId" />
                             </div>
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer">
                     <button style="visibility: hidden" type="button" class="btn btn-secondary" data-bs-dismiss="modal"
-                        id="closeSaveProduct" @click="$emit('reloadProduc')">
+                        id="closeUpdateProduct" @click="$emit('reloadProduc')">
                         cerrar
                     </button>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
@@ -55,6 +53,7 @@
         </div>
     </div>
 </template>
+  
 
 <script setup lang="ts">
 import { onMounted, ref, inject } from "vue";
@@ -101,7 +100,7 @@ const saveProduct = async () => {
                     });
                 }
                 //se obtiene el boton oculto por DOM
-                const btnCloseModal = document.getElementById("closeSaveProduct");
+                const btnCloseModal = document.getElementById("closeUpdateProduct");
                 //se verifica que se encontro el elemento
                 if (btnCloseModal) {
                     //cerramos el modal con el boton oculto
@@ -118,21 +117,8 @@ const saveProduct = async () => {
     } catch (error) {
         console.log(error);
     }
-}
-
-const items = ref([]);
-let response;
-
-const getCategories = async () => {
-    try {
-        response = await api.doGet("/pageable/category");
-        items.value = response.data.data;
-        console.log(items)
-    } catch (error) {
-        console.log("soy el erro", error);
-    }
 };
-getCategories();
+
 onMounted(() => {
     console.log("Se ejecuto el modal");
 });
