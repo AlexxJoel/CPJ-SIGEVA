@@ -37,7 +37,7 @@
                         Cancelar
                     </button>
 
-                    <button type="button" class="btn btn-primary" @click="saveStaff">
+                    <button type="button" class="btn btn-primary" @click="saveStaff"   :disabled="!areAllFieldsFilled()">
                         Guardar
                     </button>
                 </div>
@@ -70,6 +70,16 @@ let showModal = ref(true);
 
 const hideModal = () => {
     showModal.value = false;
+};
+const areAllFieldsFilled = () => {
+  return (
+    staff.value.birthday &&
+    staff.value.user.username &&
+    staff.value.person.name &&
+    staff.value.person.lastname &&
+    staff.value.person.surname &&
+    staff.value.email
+  );
 };
 const saveStaff = async () => {
     try {

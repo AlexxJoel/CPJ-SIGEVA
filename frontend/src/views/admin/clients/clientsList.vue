@@ -148,9 +148,10 @@ const reloadClients = () => {
                   <li>
                     <a
                       class="dropdown-item"
-                      data-bs-target="#ModalUpdateClient"
-                      data-bs-toggle="modal"
                       @click.prevent="() => onSelected(card.id)"
+                      data-bs-toggle="modal"
+                      data-bs-target="#ModalUpdateClient"
+                      
                     >
                       Editar
                     </a>

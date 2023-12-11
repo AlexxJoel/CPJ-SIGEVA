@@ -32,7 +32,7 @@
                         Cancelar
                     </button>
 
-                    <button type="button" class="btn btn-primary" @click="updateClient">
+                    <button type="button" class="btn btn-primary" @click="updateClient" :disabled="!areAllFieldsFilled()">
                         Guardar
                     </button>
                 </div>
@@ -71,7 +71,15 @@ const getOne = async (cardId: number) => {
         console.log(error);
     }
 };
-
+const areAllFieldsFilled = () => {
+  return (
+    client.value.phoneNumber &&
+    client.value.email &&
+    client.value.person.name &&
+    client.value.person.lastname &&
+    client.value.person.surname 
+  );
+};
 const updateClient = async () => {
     try {
         console.log("id por props", props);

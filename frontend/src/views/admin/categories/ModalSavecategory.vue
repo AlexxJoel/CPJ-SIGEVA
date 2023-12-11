@@ -60,7 +60,7 @@
             Cancelar
           </button>
 
-          <button type="button" class="btn btn-primary" @click="saveCategory">
+          <button type="button" class="btn btn-primary" @click="saveCategory" :disabled="!areAllFieldsFilled()">
             Guardar
           </button>
         </div>
@@ -79,7 +79,12 @@ const category = ref({
   description: "",
 });
 let showModal = ref(true);
-
+const areAllFieldsFilled = () => {
+  return (
+    category.value.description &&
+    category.value.name
+  );
+};
 const hideModal = () => {
   showModal.value = false;
 };

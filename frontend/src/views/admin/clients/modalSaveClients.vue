@@ -54,7 +54,7 @@
               Cancelar
             </button>
   
-            <button type="button" class="btn btn-primary" @click="saveClient">
+            <button type="button" class="btn btn-primary" @click="saveClient" :disabled="!areAllFieldsFilled()">
               Guardar
             </button>
           </div>
@@ -78,7 +78,16 @@
     }
 });
   let showModal = ref(true);
-  
+
+  const areAllFieldsFilled = () => {
+  return (
+    client.value.phoneNumber &&
+    client.value.person.name &&
+    client.value.person.lastname &&
+    client.value.person.surname &&
+    client.value.email
+  );
+};
   const hideModal = () => {
     showModal.value = false;
   };

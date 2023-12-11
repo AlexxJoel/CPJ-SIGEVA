@@ -38,7 +38,7 @@
         </div>
         <div class="modal-footer">
           <button type="button" id="closeSaveProduct" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-          <button type="button" class="btn btn-primary" @click="saveSupllier">
+          <button type="button" class="btn btn-primary" @click="saveSupllier" :disabled="!areAllFieldsFilled()">
             Guardar
           </button>
         </div>
@@ -61,6 +61,14 @@ const supplier = ref({
   },
 });
 
+const areAllFieldsFilled = () => {
+  return (
+    supplier.value.contact &&
+    supplier.value.person.surname &&
+    supplier.value.person.name &&
+    supplier.value.person.lastname
+  );
+};
 const saveSupllier = async () => {
   try {
     Swal.fire({
