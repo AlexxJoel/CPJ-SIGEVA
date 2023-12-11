@@ -6,4 +6,5 @@ export type Client ={
     phoneNumber:number;
     peopleId: number;
     person:Person;
+    purchasesCount?: number;
 }
