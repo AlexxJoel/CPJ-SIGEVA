@@ -15,7 +15,8 @@ const findAll = async () => {
         p.id as id_p,
         p.name as name_p,
         p.surname as surname_p,
-        p.lastname as lastname_p
+        p.lastname as lastname_p,
+        (SELECT COUNT(people_id) FROM transactions WHERE people_id = c.people_id) AS purchases_count
         from clients c
         inner join people p on c.people_id = p.id
         order by c.id asc;`);
@@ -38,7 +39,8 @@ const findOne = async (id:number) => {
         p.id as id_p,
         p.name as name_p,
         p.surname as surname_p,
-        p.lastname as lastname_p
+        p.lastname as lastname_p,
+        (SELECT COUNT(people_id) FROM transactions WHERE people_id = c.people_id) AS purchases_count
         from clients c
         inner join people p on c.people_id = p.id
         where c.id=$1;`,
