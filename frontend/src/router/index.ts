@@ -9,6 +9,12 @@ const router = createRouter({
             component: () => import('../views/auth/Login.vue'),
             meta: {requiresAuth: false}
         }, {
+            path: '/contact',
+            name: 'contact',
+            component: () => import('../views/aboutUs.vue'),
+            meta: {requiresAuth: false}
+        },
+        {
             path: '/admin/',
             name: 'admin',
             meta: {requiresAuth: true, role: 'Admin'},
@@ -64,7 +70,12 @@ const router = createRouter({
                     path: ":pathMatch(.*)*",
                     name: "NotFound",
                     component: () => import("../components/NotFound.vue")
-                }
+                },
+                {
+                    path: 'sales',
+                    name: 'sales',
+                    component: () => import('../views/employ/products/sellProduct.vue'),
+                },
             ],
         }
         /* {
