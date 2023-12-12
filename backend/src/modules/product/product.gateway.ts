@@ -42,7 +42,6 @@ const findOne = async (id: number) => {
         const pool = PoolSingleton.getInstance();
         const { rows: productRows } = await pool.query(`select p.*, c.name as category_name, c.description as category_description from products p inner join categories c on c.id = p.categories_id where p.id = $1;`,
             [id]);
-        console.log(productRows);
         return mapProductsResponse(productRows)[0];
     } catch (error) {
         console.log(error);

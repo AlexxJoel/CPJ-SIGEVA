@@ -8,6 +8,8 @@ import ModalUpdateStaff from "./modalUpdateStaff.vue";
 import 'vue-loading-overlay/dist/css/index.css';
 import Loading from 'vue-loading-overlay';
 import type { Staff } from "@/modules/satff/dtos/Staff.Dto";
+import NotFoundElements from "@/components/NotFoundElements.vue";
+import SkeletonCards from "@/components/SkeletonCards.vue";
 
 const Swal = inject("$swal");
 
@@ -109,8 +111,14 @@ const reloadStaff = () => {
         </button>
       </div>
     </div>
-    <loading v-model:active="isLoading" :can-cancel="true" />
-    <div v-if="paginatedCards.length > 0">
+
+
+    <SkeletonCards :loading="isLoading" :quantity-cards="10" :col-lg="5"/>
+
+    <div v-if="!isLoading && paginatedCards.length == 0">
+      <NotFoundElements/>
+    </div>
+    <div v-else>
       <main class="row row-cols-1 row-cols-md-3 row-cols-lg-5 g-2 g-lg-3">
         <div v-for="card in paginatedCards" :key="card.id" class="col">
           <div class="card itemList position-relative h-100">
@@ -132,9 +140,9 @@ const reloadStaff = () => {
             </div>
             <div class="card-body d-flex flex-column" style="font-size: 1.1rem; width: 100%;">
                 <div class="d-flex justify-content-center">
-                  <img src="@/assets/images/staff.png" class="img-fluid px-4" alt="...">
+                  <img src="@/assets/images/staff.png" class="img-fluid px-4" alt="..." width="210" >
                 </div>
-              <p class="card-text mt-1 m-0 fw-semibold text-center" style="height: auto">
+              <p class="card-text mt-1 m-0 fw-semibold " style="height: auto">
                 {{ card.person.name }} {{ card.person.surname }} {{ card.person.lastname }}
               </p>
               <span class="card-text mt-2 fw-medium">Email: </span>
@@ -153,12 +161,7 @@ const reloadStaff = () => {
         </div>
       </main>
     </div>
-    <div v-else>
-      <div class="text-center mt-5">
-        <img src="@/assets/images/tite.png" alt="not found" class="img-fluid" width="150" />
-        <h3 class="text-primary fw-bold">No se encontraron resultados</h3>
-      </div>
-    </div>
+
 
     <footer>
       <nav aria-label="pagination" class="d-flex justify-content-md-end justify-content-center mt-3">

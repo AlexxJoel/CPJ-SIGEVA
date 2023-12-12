@@ -1,6 +1,6 @@
 <template>
   <div v-if="loading">
-    <section class="row row-cols-2 row-cols-md-3 row-cols-lg-6 g-2 g-lg-3">
+    <section class="row row-cols-2 row-cols-md-3  g-2 g-lg-30" :class="'row-cols-lg-'+ colLg">
       <div v-for="i in quantityCards" :key="i" class="col">
         <div class="card" aria-hidden="true">
           <div class="card-body">
@@ -23,7 +23,7 @@
 </template>
 
 <script setup lang="ts">
-import {onMounted} from "vue";
+
 
 defineProps({
   loading: {
@@ -41,6 +41,10 @@ defineProps({
   showButton: {
     type: Boolean,
     default: false
+  },
+  colLg: {
+    type: Number,
+    default: 6
   }
 })
 
