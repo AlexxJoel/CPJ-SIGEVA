@@ -51,7 +51,7 @@ const router = createRouter({
                 },
                 {
                     path: ":pathMatch(.*)*",
-                    name: "NotFound",
+                    name: "NotFoundAdmin",
                     component: () => import("../components/NotFound.vue")
                 }
             ],
@@ -67,32 +67,32 @@ const router = createRouter({
                     component: () => import('../views/employ/home/Home.vue'),
                 },
                 {
-                    path: ":pathMatch(.*)*",
-                    name: "NotFound",
-                    component: () => import("../components/NotFound.vue")
-                },
-                {
                     path: 'sales',
-                    name: 'sales',
+                    name: 'salesEmploy',
                     component: () => import('../views/employ/products/sellProduct.vue'),
                 }, {
                     path: 'clients',
-                    name: 'clients',
+                    name: 'clientsEmploy',
                     component: () => import('../views/admin/clients/clientsList.vue'),
                 }, {
                     path: 'providersProduct',
-                    name: 'providersProductAdmin',
-                    component: () => import('../views/admin/providersProducts/providerProductsUser.vue'),
+                    name: 'providersProductEmploy',
+                    component: () => import('../views/admin/supplier/ProviderProductsUser.vue'),
                 },
                 {
                     path: 'categories',
-                    name: 'categories',
+                    name: 'categoriesEmploy',
                     component: () => import('../views/admin/categories/categoriesList.vue'),
                 },
                 {
                     path: 'products',
-                    name: 'products',
+                    name: 'productsEmploy',
                     component: () => import('../views/admin/products/productsList.vue'),
+                },
+                {
+                    path: ":pathMatch(.*)*",
+                    name: "NotFoundEmploy",
+                    component: () => import("../components/NotFound.vue")
                 },
             ],
         }

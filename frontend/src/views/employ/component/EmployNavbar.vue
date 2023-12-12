@@ -25,19 +25,19 @@
 
         <ul class="navbar-nav">
           <li>
-            <router-link class="nav-link px-0 px-md-2" active-class="text-primary fw-bold" :to="{ name: 'clients'}">Clientes
+            <router-link class="nav-link px-0 px-md-2" active-class="text-primary fw-bold" :to="{ name: 'clientsEmploy'}">Clientes
             </router-link>
           </li>
           <li>
-            <router-link class="nav-link px-0 px-md-2" active-class="text-primary fw-bold" :to="{ name: 'products'}">Inventario
+            <router-link class="nav-link px-0 px-md-2" active-class="text-primary fw-bold" :to="{ name: 'productsEmploy'}">Inventario
             </router-link>
           </li>
           <li>
-            <router-link class="nav-link px-0 px-md-2" active-class="text-primary fw-bold" :to="{ name: 'categories'}">Categorias
+            <router-link class="nav-link px-0 px-md-2" active-class="text-primary fw-bold" :to="{ name: 'categoriesEmploy'}">Categorias
             </router-link>
           </li>
           <li>
-            <router-link class="nav-link px-0 px-md-2" active-class="text-primary fw-bold" :to="{ name: 'sales'}">
+            <router-link class="nav-link px-0 px-md-2" active-class="text-primary fw-bold" :to="{ name: 'salesEmploy'}">
               Venta
             </router-link>
           </li>
