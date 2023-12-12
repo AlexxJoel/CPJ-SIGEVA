@@ -1,5 +1,6 @@
-import { Pool } from 'pg'
+import {Pool} from 'pg'
 import dotenv from 'dotenv'
+
 dotenv.config();
 
 const PORT: string = process.env.PORTDB || '5432'
@@ -34,5 +35,24 @@ export class PoolSingleton {
         const duration = Date.now() - start;
         console.log('executed query', { text, duration, rows: res.rowCount });
         return res;
+    }
+
+    public async connect(): Promise<any> {
+        return await this.pool.connect();
+    }
+    public async transaction(queries: string[], params:any[]): Promise<any> {
+        const client = await this.pool.connect();
+        try {
+            await client.query('BEGIN');
+            for (const query of queries) {
+                await client.query(query);
+            }
+            await client.query('COMMIT');
+        } catch (err) {
+            await client.query('ROLLBACK');
+            throw err;
+        } finally {
+            client.release();
+        }
     }
 }
