@@ -24,7 +24,13 @@ const router = createRouter({
                     path: 'home',
                     name: 'homeAdmin',
                     component: () => import('../views/admin/home/Home.vue'),
-                }, {
+                },
+                {
+                    path: 'users',
+                    name: 'usersAdmin',
+                    component: () => import('../views/admin/users/ListUsersView.vue'),
+                },
+                {
                     path: 'suppliers',
                     name: 'providersProductAdmin',
                     component: () => import('../views/admin/supplier/providerProductsUser.vue'),
