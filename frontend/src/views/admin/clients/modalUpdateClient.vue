@@ -1,3 +1,86 @@
+<script setup lang="ts">
+import { onMounted, ref, inject, computed, type PropType } from "vue";
+import api from "../../../config/http-client.gateway";
+import type { Client } from "@/modules/client/Client.Dto";
+import 'vue-loading-overlay/dist/css/index.css';
+import Loading from 'vue-loading-overlay';
+const Swal = inject("$swal");
+
+const props = defineProps({
+  clients: {
+    type: Object as PropType<Client>,
+    required: true,
+  },
+});
+const isLoading = ref(false);
+const areAllFieldsFilled = () => {
+  return (
+    props.clients.phoneNumber &&
+    props.clients.email &&
+    props.clients.person.name &&
+    props.clients.person.lastname &&
+    props.clients.person.surname 
+  );
+};
+const capitalizeFirstLetter =(inputString: string) => {
+  let letter = inputString.charAt(0).toUpperCase() + inputString.slice(1).toLowerCase();
+  return letter
+}
+const updateClient = async () => {
+    try {
+        Swal.fire({
+            title: "¿Segura que desea realizar la acción?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Aceptar",
+            cancelButtonText: "Cancelar",
+            reverseButtons: true,
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                isLoading.value=true;
+                const res = await api.doPut("/clients", {
+                    id: props.clients.id,
+                    person: {
+                        id:props.clients.person.id,
+                        name: capitalizeFirstLetter(props.clients.person.name),
+                        surname: capitalizeFirstLetter(props.clients.person.surname),
+                        lastname: capitalizeFirstLetter(props.clients.person.lastname),
+                    },
+                    email: props.clients.email,
+                    phoneNumber: props.clients.phoneNumber
+                });
+                isLoading.value=false;
+                if (res.data.data) {
+                    Swal.fire({
+                        icon: "success",
+                        title: "Acción realizada correctamente",
+                        confirmButtonText: "Aceptar",
+                    });
+                }
+                //se obtiene el boton oculto por DOM
+                const btnCloseModal = document.getElementById("closeUpdateClient");
+                //se verifica que se encontro el elemento
+                if (btnCloseModal) {
+                    //cerramos el modal con el boton oculto
+                    btnCloseModal.click();
+                 
+                }
+            }
+        });
+    } catch (error) {
+        isLoading.value=false;
+        console.log(error);
+    }
+};
+
+onMounted(() => {
+
+    console.log("Se ejecuto el modal");
+});
+</script>
+
 <template>
     <div class="modal fade" id="ModalUpdateClient" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true"
         ref="saveClientModal">
@@ -9,18 +92,19 @@
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
+                <loading v-model:active="isLoading" :can-cancel="true" />
                 <div class="modal-body">
                     <form>
                         <label for="clientName" class="form-label">Nombre</label>
-                        <input type="text" class="form-control" id="clientName" v-model="client.person.name" />
+                        <input type="text" class="form-control" id="clientName" v-model="props.clients.person.name" />
                         <label for="clientLastname" class="form-label mt-3">Apellido paterno</label>
-                        <input class="form-control" id="categoryDescription" rows="3" v-model="client.person.lastname">
+                        <input class="form-control" id="categoryDescription" rows="3" v-model="props.clients.person.lastname">
                         <label for="clientSurname" class="form-label mt-3">Apellido materno</label>
-                        <input class="form-control" id="categoryDescription" rows="3" v-model="client.person.surname">
+                        <input class="form-control" id="categoryDescription" rows="3" v-model="props.clients.person.surname">
                         <label for="clientSurname" class="form-label mt-3">Numero de telefono</label>
-                        <input class="form-control" id="categoryDescription" rows="3" v-model="client.phoneNumber">
+                        <input class="form-control" id="categoryDescription" rows="3" v-model="props.clients.phoneNumber">
                         <label for="clientSurname" class="form-label mt-3">Email</label>
-                        <input class="form-control" id="categoryDescription" rows="3" v-model="client.email">
+                        <input class="form-control" id="categoryDescription" rows="3" v-model="props.clients.email">
                     </form>
                 </div>
                 <div class="modal-footer">
@@ -41,97 +125,6 @@
     </div>
 </template>
   
-<script setup lang="ts">
-import { onMounted, ref, inject, computed } from "vue";
-import api from "../../../config/http-client.gateway";
-const Swal = inject("$swal");
 
-const props = defineProps(["clients"]);
-
-console.log("id por props", props.clients);
-
-const client = ref({
-    id: 0,
-    phoneNumber: "",
-    email: "",
-    person: {
-        id:0 ,
-        name: "",
-        surname: "",
-        lastname: ""
-    }
-});
-
-const getOne = async (cardId: number) => {
-    try {
-        const res = await api.doGet(`/clients/${cardId}`);
-        console.log("q trae?", res);
-        client.value.person.id = res.data.data.person.id
-    } catch (error) {
-        console.log(error);
-    }
-};
-const areAllFieldsFilled = () => {
-  return (
-    client.value.phoneNumber &&
-    client.value.email &&
-    client.value.person.name &&
-    client.value.person.lastname &&
-    client.value.person.surname 
-  );
-};
-const updateClient = async () => {
-    try {
-        console.log("id por props", props);
-        Swal.fire({
-            title: "¿Segura que desea realizar la acción?",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Aceptar",
-            cancelButtonText: "Cancelar",
-            reverseButtons: true,
-        }).then(async (result) => {
-            if (result.isConfirmed) {
-                await getOne(props.clients)
-                const res = await api.doPut("/clients", {
-                    id: props.clients,
-                    person: {
-                        id:client.value.person.id,
-                        name: client.value.person.name,
-                        surname: client.value.person.surname,
-                        lastname: client.value.person.lastname,
-                    },
-                    email: client.value.email,
-                    phoneNumber: client.value.phoneNumber
-                });
-                if (res.data.data) {
-                    Swal.fire({
-                        icon: "success",
-                        title: "Acción realizada correctamente",
-                        confirmButtonText: "Aceptar",
-                    });
-                }
-                //se obtiene el boton oculto por DOM
-                const btnCloseModal = document.getElementById("closeUpdateClient");
-                //se verifica que se encontro el elemento
-                if (btnCloseModal) {
-                    //cerramos el modal con el boton oculto
-                    btnCloseModal.click();
-                 
-                }
-            }
-        });
-    } catch (error) {
-        console.log(error);
-    }
-};
-
-onMounted(() => {
-
-    console.log("Se ejecuto el modal");
-});
-</script>
 <style></style>
   
