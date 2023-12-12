@@ -75,6 +75,24 @@ const router = createRouter({
                     path: 'sales',
                     name: 'sales',
                     component: () => import('../views/employ/products/sellProduct.vue'),
+                }, {
+                    path: 'clients',
+                    name: 'clients',
+                    component: () => import('../views/admin/clients/clientsList.vue'),
+                }, {
+                    path: 'providersProduct',
+                    name: 'providersProductAdmin',
+                    component: () => import('../views/admin/providersProducts/providerProductsUser.vue'),
+                },
+                {
+                    path: 'categories',
+                    name: 'categories',
+                    component: () => import('../views/admin/categories/categoriesList.vue'),
+                },
+                {
+                    path: 'products',
+                    name: 'products',
+                    component: () => import('../views/admin/products/productsList.vue'),
                 },
             ],
         }
