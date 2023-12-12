@@ -8,7 +8,7 @@ const getProducts = async () => {
     response.data.data.map((element) => {
       element.quantitySold = 0;
     });
-    items.value = response.data.data.filter((obj) => obj.quantity !== 0 );
+    items.value = response.data.data.filter((obj) => obj.quantity !== 0);
     console.log(response.data.data);
   } catch (error) {
     console.log(error);
@@ -39,12 +39,12 @@ onMounted(getProducts);
 onMounted(getClients);
 onMounted(getStaff);
 
-const isButtonDisabled = ref(true);
-const isButtonDisabled2 = ref(true);
-const isButtonDisabled3 = ref(true);
 const onSelectedClient = (clientId: number) => {
   if (clientId == "none" && selectedClient.value) {
     selectedClient.value = {};
+    console.log("valor del cliente cuando no es nada", selectedClient.value);
+    descount.value = 0;
+    total.value = calculateTotalCost();
   } else {
     // const json = JSON.parse(JSON.stringify(clients.value))
     selectedClient.value = clients.value.find(
@@ -55,6 +55,8 @@ const onSelectedClient = (clientId: number) => {
     } else {
       descount.value = 0;
     }
+    total.value = calculateTotalCost();
+
     console.log(selectedClient.value);
   }
 };
@@ -62,12 +64,16 @@ const onSelectedClient = (clientId: number) => {
 const onSelectedEmploye = (employeId: number) => {
   if (employeId == "none" && selectedEmploye.value) {
     selectedEmploye.value = {};
+    descount.value = 0;
+    total.value = calculateTotalCost();
   } else {
     // const json = JSON.parse(JSON.stringify(clients.value))
     selectedEmploye.value = staff.value.find(
       (ele) => ele.id == parseInt(employeId)
     );
     descount.value = 0.01;
+    total.value = calculateTotalCost();
+
     console.log(selectedClient.value);
   }
 };
@@ -79,7 +85,6 @@ const calculateDescount = () => {
   let totalDescount = totalToPay * descount.value;
   return totalDescount;
 };
-
 const calculateSubtotalCost = () => {
   return selectedProducts.value.reduce(
     (total, item) => total + item.uniPrice * item.quantitySold,
@@ -122,6 +127,9 @@ const addProducts = (productId: number, quantitySold: number) => {
   total.value = calculateTotalCost();
 };
 
+const isButtonDisabled = ref(true);
+const isButtonDisabled2 = ref(true);
+const isButtonDisabled3 = ref(true);
 const items = ref([]);
 const clients = ref([]);
 const staff = ref([]);
@@ -134,6 +142,7 @@ const descount = ref(0);
 const needRegistration = ref(false);
 const needEmail = ref(false);
 const selectClientRef = ref(null);
+
 const dataUserForm = ref({
   phoneNumber: "",
   email: "",
@@ -324,15 +333,19 @@ watch(
 
 const selectedTab = ref("client");
 const handleTabClient = () => {
-  selectedTab.value = 'client'
-  selectedClient.value = {}
-  selectedEmploye.value = {}
-}
+  selectedTab.value = "client";
+  selectedClient.value = {};
+  selectedEmploye.value = {};
+  descount.value = 0;
+  total.value = calculateTotalCost();
+};
 const handleTabStaff = () => {
-  selectedTab.value = 'staff'
-  selectedClient.value = {}
-  selectedEmploye.value = {}
-}
+  selectedTab.value = "staff";
+  selectedClient.value = {};
+  selectedEmploye.value = {};
+  descount.value = 0;
+  total.value = calculateTotalCost();
+};
 </script>
 
 <template>
@@ -596,7 +609,9 @@ const handleTabStaff = () => {
               </div>
               <div>
                 <strong>Apellido materno:</strong>
-                {{ selectedEmploye.person ? selectedEmploye.person.surname : "" }}
+                {{
+                  selectedEmploye.person ? selectedEmploye.person.surname : ""
+                }}
               </div>
               <div>
                 <strong>Correo:</strong>
@@ -634,9 +649,9 @@ const handleTabStaff = () => {
                 class="form-check-input"
                 type="checkbox"
                 v-model="needEmail"
-                id="flexCheckDefault"
+                id="confirmation"
               />
-              <label class="form-check-label" for="flexCheckDefault">
+              <label class="form-check-label" for="confirmation">
                 ¿Envíar confirmación?
               </label>
             </div>
