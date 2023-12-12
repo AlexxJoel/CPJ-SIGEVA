@@ -165,12 +165,7 @@ const changeStatus = (cardId: number) => {
               </div>
               <div class="card-body">
                 <div class="d-flex justify-content-center">
-                  <!-- <img
-                    src="https://via.placeholder.com/120"
-                    class="img-fluid"
-                    alt="..."
-                  /> -->
-                  <i class="pi pi-th-large my-3" style="font-size: 5rem"></i>
+                  <img src="@/assets/images/menu.png" class="img-fluid px-4" alt="...">
                 </div>
                 <p class="card-text mt-1 m-0 fw-semibold" style="height: auto">
                   {{ card.name }}

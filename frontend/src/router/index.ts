@@ -25,9 +25,9 @@ const router = createRouter({
                     name: 'homeAdmin',
                     component: () => import('../views/admin/home/Home.vue'),
                 }, {
-                    path: 'providersProduct',
+                    path: 'suppliers',
                     name: 'providersProductAdmin',
-                    component: () => import('../views/admin/providersProducts/providerProductsUser.vue'),
+                    component: () => import('../views/admin/supplier/providerProductsUser.vue'),
                 },
                 {
                     path: 'categories',
@@ -51,7 +51,7 @@ const router = createRouter({
                 },
                 {
                     path: ":pathMatch(.*)*",
-                    name: "NotFound",
+                    name: "NotFoundAdmin",
                     component: () => import("../components/NotFound.vue")
                 }
             ],
@@ -67,32 +67,37 @@ const router = createRouter({
                     component: () => import('../views/employ/home/Home.vue'),
                 },
                 {
+                    path: 'sales',
+                    name: 'salesEmploy',
+                    component: () => import('../views/employ/products/sellProduct.vue'),
+                }, {
+                    path: 'clients',
+                    name: 'clientsEmploy',
+                    component: () => import('../views/admin/clients/clientsList.vue'),
+                }, {
+                    path: 'providersProduct',
+                    name: 'providersProductEmploy',
+                    component: () => import('../views/admin/supplier/ProviderProductsUser.vue'),
+                },
+                {
+                    path: 'categories',
+                    name: 'categoriesEmploy',
+                    component: () => import('../views/admin/categories/categoriesList.vue'),
+                },
+                {
+                    path: 'products',
+                    name: 'productsEmploy',
+                    component: () => import('../views/admin/products/productsList.vue'),
+                },
+                {
                     path: ":pathMatch(.*)*",
-                    name: "NotFound",
+                    name: "NotFoundEmploy",
                     component: () => import("../components/NotFound.vue")
                 },
                 {
                     path: 'sales',
                     name: 'sales',
                     component: () => import('../views/employ/products/sellProduct.vue'),
-                }, {
-                    path: 'clients',
-                    name: 'clients',
-                    component: () => import('../views/admin/clients/clientsList.vue'),
-                }, {
-                    path: 'providersProduct',
-                    name: 'providersProductAdmin',
-                    component: () => import('../views/admin/providersProducts/providerProductsUser.vue'),
-                },
-                {
-                    path: 'categories',
-                    name: 'categories',
-                    component: () => import('../views/admin/categories/categoriesList.vue'),
-                },
-                {
-                    path: 'products',
-                    name: 'products',
-                    component: () => import('../views/admin/products/productsList.vue'),
                 },
             ],
         }
