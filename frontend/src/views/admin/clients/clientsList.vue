@@ -96,9 +96,8 @@ const reloadClients = async() => {
         <div class="input-group">
           <input type="text" class="form-control" placeholder="Buscar cliente" aria-label="Buscar cliente"
             v-model="search" />
-          <button class="btn btn-primary text-secondary" type="button">
-            Buscar
-          </button>
+          <span class="input-group-text bg-primary text-secondary" readonly><i class="pi pi-search"></i></span>
+
         </div>
       </div>
       <div class="d-flex align-items-end justify-content-end mt-2 mt-md-0">
@@ -132,7 +131,7 @@ const reloadClients = async() => {
             </div>
             <div class="card-body d-flex flex-column" style="font-size: 1.1rem; width: 100%;">
               <div class="d-flex justify-content-center">
-                <img src="../../../assets/images/perfil.png" class="img-fluid" alt="...">
+                <img src="@/assets/images/perfil.png" class="img-fluid px-4" alt="...">
               </div>
 
 

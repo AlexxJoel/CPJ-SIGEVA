@@ -25,8 +25,13 @@
 
         <ul class="navbar-nav">
           <li class="nav-item">
-            <router-link class="nav-link px-0" active-class="text-primary fw-bold"
-                         :to="{ name: 'providersProductAdmin'}">Proveedores
+            <router-link class="nav-link px-0" active-class="text-primary fw-bold" :to="{ name: 'homeAdmin'}">
+              Historial
+            </router-link>
+          </li>
+          <li class="nav-item">
+            <router-link class="nav-link px-0 px-md-2" active-class="text-primary fw-bold" :to="{ name: 'providersProductAdmin'}">
+              Proveedores
             </router-link>
           </li>
           <li>

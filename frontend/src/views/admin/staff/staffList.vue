@@ -98,9 +98,8 @@ const reloadStaff = () => {
         <div class="input-group">
           <input type="text" class="form-control" placeholder="Buscar empleado" aria-label="Buscar empleado"
             v-model="search" />
-          <button class="btn btn-primary text-secondary" type="button">
-            Buscar
-          </button>
+          <span class="input-group-text bg-primary text-secondary" readonly><i class="pi pi-search"></i></span>
+
         </div>
       </div>
       <div class="d-flex align-items-end justify-content-end mt-2 mt-md-0">
@@ -132,9 +131,9 @@ const reloadStaff = () => {
               </ul>
             </div>
             <div class="card-body d-flex flex-column" style="font-size: 1.1rem; width: 100%;">
-              <div class="d-flex justify-content-center">
-                <img src="../../../assets/images/staff.png" class="img-fluid" alt="...">
-              </div>
+                <div class="d-flex justify-content-center">
+                  <img src="@/assets/images/staff.png" class="img-fluid px-4" alt="...">
+                </div>
               <p class="card-text mt-1 m-0 fw-semibold text-center" style="height: auto">
                 {{ card.person.name }} {{ card.person.surname }} {{ card.person.lastname }}
               </p>
@@ -179,8 +178,10 @@ const reloadStaff = () => {
         </ul>
       </nav>
     </footer>
+
     <ModalSaveStaff @reloadStaff="reloadStaff" />
     <ModalUpdateStaff v-if="onSelectedId" @reloadStaff="reloadStaff" :staffs="onSelectedId" />
+
   </div>
 </template>
 

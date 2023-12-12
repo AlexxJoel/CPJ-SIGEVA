@@ -19,7 +19,8 @@ export class PoolSingleton extends Pool{
             database: process.env.POSTGRES_DATABASE,
             password: process.env.POSTGRES_PASSWORD,
             port: parseInt(PORT),
-            ssl: SSL
+            ssl: SSL,
+            idleTimeoutMillis: 30000,
         }))
     }
 }

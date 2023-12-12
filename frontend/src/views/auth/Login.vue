@@ -108,9 +108,7 @@ let onSubmit = handleSubmit(async values => {
 });
 
 //disabled button
-let isDisabled = computed(() => {
-  return !uMeta.valid || !pMeta.valid;
-});
+let isDisabled = computed(() => !uMeta.valid || !pMeta.valid);
 
 onMounted(() => sentTo())
 
