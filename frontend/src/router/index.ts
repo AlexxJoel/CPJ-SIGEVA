@@ -95,9 +95,9 @@ const router = createRouter({
                     component: () => import("../components/NotFound.vue")
                 },
                 {
-                    path: 'sales',
-                    name: 'sales',
-                    component: () => import('../views/employ/products/sellProduct.vue'),
+                    path: 'layawayEmploy',
+                    name: 'layawayEmploy',
+                    component: () => import('../views/employ/products/layawayProduct.vue'),
                 },
             ],
         }

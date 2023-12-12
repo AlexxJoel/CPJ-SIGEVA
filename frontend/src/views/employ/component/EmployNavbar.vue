@@ -42,6 +42,11 @@
               Venta
             </router-link>
           </li>
+          <li>
+            <router-link class="nav-link px-0 px-md-2" active-class="text-primary fw-bold" :to="{ name: 'layawayEmploy'}">
+              Apartados
+            </router-link>
+          </li>
         </ul>
 
         <!-- link to right-->
