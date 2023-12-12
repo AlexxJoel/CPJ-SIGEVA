@@ -30,23 +30,24 @@
             </router-link>
           </li>
           <li>
-            <router-link class="nav-link px-0 px-md-2" active-class="text-primary fw-bold" :to="{ name: 'clients'}">Clientes
+            <router-link class="nav-link px-0 px-md-2" active-class="text-primary fw-bold" :to="{ name: 'clients'}">
+              Clientes
             </router-link>
           </li>
           <li>
-            <router-link class="nav-link px-0 px-md-2" active-class="text-primary fw-bold" :to="{ name: 'staff'}">Empleados
+            <router-link class="nav-link px-0 px-md-2" active-class="text-primary fw-bold" :to="{ name: 'staff'}">
+              Empleados
             </router-link>
           </li>
           <li>
-            <router-link class="nav-link px-0 px-md-2" active-class="text-primary fw-bold" :to="{ name: 'products'}">Inventario
+            <router-link class="nav-link px-0 px-md-2" active-class="text-primary fw-bold" :to="{ name: 'products'}">
+              Inventario
             </router-link>
           </li>
           <li>
-            <router-link class="nav-link px-0 px-md-2" active-class="text-primary fw-bold" :to="{ name: 'categories'}">Categorias
+            <router-link class="nav-link px-0 px-md-2" active-class="text-primary fw-bold" :to="{ name: 'categories'}">
+              Categorias
             </router-link>
-          </li>
-          <li>
-            <router-link class="nav-link px-0 px-md-2" active-class="text-primary fw-bold" :to="{ name: 'homeAdmin'}">Venta</router-link>
           </li>
         </ul>
 
@@ -64,13 +65,21 @@
 
 <script setup lang="ts">
 import router from '@/router';
+import {getCurrentInstance} from "vue";
 
+const app = getCurrentInstance();
+const Swal = app?.appContext.config.globalProperties.$swalCustom;
 
 const logout = () => {
-  localStorage.removeItem("token")
-  localStorage.removeItem("user")
-  router.push("/");
-
+  Swal.question('¿Está seguro que desea cerrar sesión?', 'Esta acción no se puede revertir', 'warning', 'Cerrar sesión')
+      .then((result: any) => {
+        if (result.isConfirmed) {
+          localStorage.removeItem("token")
+          localStorage.removeItem("user")
+          localStorage.removeItem("role")
+          router.push({name: 'login'});
+        }
+      })
 }
 </script>
 

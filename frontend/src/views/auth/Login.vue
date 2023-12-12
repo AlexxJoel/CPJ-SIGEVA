@@ -43,7 +43,7 @@
 </template>
 
 <script setup>
-import {computed, inject, onMounted,} from "vue";
+import {computed, getCurrentInstance, inject, onMounted,} from "vue";
 import {useRouter} from "vue-router";
 import {useForm, useField} from "vee-validate";
 import * as yup from "yup";
@@ -51,8 +51,9 @@ import api from "@/config/http-client.gateway";
 import Loading from "@/components/Loading.vue";
 import Navbar from "@/components/Navbar.vue";
 
-// it to use it in the component, before it was this.$swal
-const Swal = inject('$swal')
+
+const app = getCurrentInstance();
+const Swal = app?.appContext.config.globalProperties.$swalCustom;
 const router = useRouter()
 
 
@@ -71,6 +72,7 @@ let {value: user, errorMessage: uError, handleBlur: eBlur, meta: uMeta} = useFie
 let {value: password, errorMessage: pError, handleBlur: pBlur, meta: pMeta} = useField("password");
 
 let onSubmit = handleSubmit(async values => {
+  Swal.loading('Comprobando credenciales', 'Espere un momento por favor')
   const payload = {
     username: values.user,
     password: values.password
@@ -78,7 +80,7 @@ let onSubmit = handleSubmit(async values => {
 
   try {
     const response = await api.doPost('/auth/login', payload)
-
+    Swal.close()
     if (response.status === 200) {
       const token = response.data.token;
       const user = JSON.stringify(response.data.data);
@@ -86,50 +88,19 @@ let onSubmit = handleSubmit(async values => {
       localStorage.setItem('token', token);
       localStorage.setItem('user', user);
       localStorage.setItem('role', role);
-      Swal.fire({
-        icon: 'success',
-        title: 'Bienvenido',
-        text: 'Has iniciado sesión correctamente',
-        showConfirmButton: false,
-        timer: 2000
-      })
-
+      Swal.successTime('Inicio de sesión exitoso', 'Bienvenido')
       await sentTo();
-
-
     }
 
     console.log(response);
   } catch (e) {
-    if (e.status === 404) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Oops...',
-        text: 'Usuario y/o contraseña incorrectos',
-        showConfirmButton: false,
-        timer: 2000
-      })
-    }
+    Swal.close()
+    if (e.status === 404) Swal.errorTime('Oops...', 'Usuario o contraseña incorrectos')
 
-    if (e.status === 403) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Oops...',
-        text: 'Usuario deshabilitado',
-        showConfirmButton: false,
-        timer: 2000
-      })
-    }
+    if (e.status === 403) Swal.errorTime('Oops...', 'Usuario deshabilitado')
 
-    if (e.status === 500) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Oops...',
-        text: 'El inicio de sesión ha fallado',
-        showConfirmButton: false,
-        timer: 2000
-      })
-    }
+    if (e.status === 500) Swal.errorTime('Oops...', 'Error en el servidor')
+
     console.log(e);
   } finally {
     resetForm();
@@ -144,7 +115,7 @@ let isDisabled = computed(() => {
 onMounted(() => sentTo())
 
 const sentTo = async () => {
-  const  token = localStorage.getItem('token')
+  const token = localStorage.getItem('token')
   if (token === null) await router.push('/');
   const role = localStorage.getItem('role')
   console.log(role)
@@ -152,7 +123,7 @@ const sentTo = async () => {
     await router.push({name: 'homeAdmin'})
   } else if (role === 'Empleado') {
     await router.push({name: 'homeEmploy'})
-  }else {
+  } else {
     await router.push('/');
   }
 }

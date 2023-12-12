@@ -41,14 +41,16 @@
             </router-link>
           </li>
           <li>
-            <router-link class="nav-link px-0 px-md-2" active-class="text-primary fw-bold" :to="{ name: 'sales'}">Venta</router-link>
+            <router-link class="nav-link px-0 px-md-2" active-class="text-primary fw-bold" :to="{ name: 'sales'}">
+              Venta
+            </router-link>
           </li>
         </ul>
 
         <!-- link to right-->
         <ul class="navbar-nav ms-auto">
           <li class="nav-item">
-            <router-link class="nav-link" active-class="text-primary fw-bold" to="/">Cerrar sesión</router-link>
+            <button class="nav-link"  @click="logout">Cerrar sesión</button>
           </li>
         </ul>
 
@@ -58,6 +60,23 @@
 </template>
 
 <script setup>
+import {getCurrentInstance} from "vue";
+import router from "@/router";
+
+const app = getCurrentInstance();
+const Swal = app?.appContext.config.globalProperties.$swalCustom;
+
+const logout = () => {
+  Swal.question('¿Está seguro que desea cerrar sesión?', 'Esta acción no se puede revertir', 'warning', 'Cerrar sesión')
+      .then((result: any) => {
+        if (result.isConfirmed) {
+          localStorage.removeItem("token")
+          localStorage.removeItem("user")
+          localStorage.removeItem("role")
+          router.push({name: 'login'});
+        }
+      })
+}
 </script>
 
 <style scoped>
