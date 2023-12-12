@@ -68,7 +68,7 @@ const Swal = app?.appContext.config.globalProperties.$swalCustom;
 
 const logout = () => {
   Swal.question('¿Está seguro que desea cerrar sesión?', 'Esta acción no se puede revertir', 'warning', 'Cerrar sesión')
-      .then((result: any) => {
+      .then((result) => {
         if (result.isConfirmed) {
           localStorage.removeItem("token")
           localStorage.removeItem("user")
