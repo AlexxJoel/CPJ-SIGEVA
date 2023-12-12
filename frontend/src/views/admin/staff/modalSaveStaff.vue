@@ -9,7 +9,7 @@
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-
+                <loading v-model:active="isLoading" :can-cancel="true" />
                 <div class="modal-body">
                     <form>
                         <label for="clientName" class="form-label">Nombre</label>
@@ -49,7 +49,8 @@
 <script setup lang="ts">
 import { onMounted, ref, inject } from "vue";
 import api from "../../../config/http-client.gateway";
-
+import 'vue-loading-overlay/dist/css/index.css';
+import Loading from 'vue-loading-overlay';
 const Swal = inject("$swal");
 
 const staff = ref({
@@ -66,21 +67,22 @@ const staff = ref({
         rolesId: 2
     }
 });
-let showModal = ref(true);
+const isLoading = ref(false);
 
-const hideModal = () => {
-    showModal.value = false;
-};
+
 const areAllFieldsFilled = () => {
   return (
     staff.value.birthday &&
     staff.value.user.username &&
     staff.value.person.name &&
     staff.value.person.lastname &&
-    staff.value.person.surname &&
     staff.value.email
   );
 };
+const capitalizeFirstLetter =(inputString: string) => {
+  let letter = inputString.charAt(0).toUpperCase() + inputString.slice(1).toLowerCase();
+  return letter
+}
 const saveStaff = async () => {
     try {
         Swal.fire({
@@ -94,11 +96,12 @@ const saveStaff = async () => {
             reverseButtons: true,
         }).then(async (result) => {
             if (result.isConfirmed) {
+                isLoading.value=true;
                 const res = await api.doPost("/staff", {
                     person: {
-                        name: staff.value.person.name,
-                        surname: staff.value.person.surname,
-                        lastname: staff.value.person.lastname,
+                        name: capitalizeFirstLetter(staff.value.person.name),
+                        surname: capitalizeFirstLetter(staff.value.person.surname),
+                        lastname: capitalizeFirstLetter(staff.value.person.lastname),
                     },
                     email: staff.value.email,
                     birthday: staff.value.birthday,
@@ -107,6 +110,7 @@ const saveStaff = async () => {
                         rolesId: staff.value.user.rolesId
                     }
                 });
+                isLoading.value=false
                 if (res.data.data) {
                     Swal.fire({
                         icon: "success",
@@ -131,6 +135,7 @@ const saveStaff = async () => {
             }
         });
     } catch (error) {
+        isLoading.value=false
         console.log(error);
     }
 };

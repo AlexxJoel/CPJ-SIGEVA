@@ -5,27 +5,47 @@ import { computed, onMounted, ref, inject } from "vue";
 import api from "../../../config/http-client.gateway.ts";
 import ModalUpdateClient from "./modalUpdateClient.vue";
 import ModalSaveClient from "./modalSaveClients.vue";
+import type { Client } from "@/modules/client/Client.Dto";
+import 'vue-loading-overlay/dist/css/index.css';
+import Loading from 'vue-loading-overlay';
 
 const Swal = inject("$swal");
 
 let response;
 const getClients = async () => {
   try {
+    isLoading.value = true;
     response = await api.doGet("/clients");
-    items.value = response.data.data;
+    for (const client of response.data.data) {
+      items.value.push({
+        id: client.id,
+        phoneNumber: client.phoneNumber,
+        email: client.email,
+        person:client.person
+      } as Client);
+    }
+    isLoading.value=false
   } catch (error) {
-    console.log( error);
+    isLoading.value=false
+    console.log(error);
   }
 };
-const onSelectedId = ref();
+const items = ref<Client[]>([]);
+const onSelectedC = ref<Client>({
+  id:0,
+  phoneNumber: 0,
+  email: '',
+  person: []
+});
 
-const onSelected = (cardId: number) => {
-  onSelectedId.value = cardId;
+const onSelected = (card: Client) => {
+  onSelectedC.value = card;
 };
 
 onMounted(getClients);
 
-const items = ref([]);
+const isLoading = ref(false);
+
 
 const paginator = ref({
   currentPage: 1,
@@ -35,7 +55,7 @@ const paginator = ref({
 const search = ref("");
 
 const filterItem = computed(() => {
-  return items.value.filter((item) => {    
+  return items.value.filter((item) => {
     return item.person.name.toLowerCase().includes(search.value.toLowerCase());
   });
 });
@@ -58,10 +78,9 @@ const goToPage = (page: number) => {
 
 
 
-const reloadClients = () => {
+const reloadClients = async() => {
   console.log("valiko");
-
-  getClients();
+ await getClients();
 };
 
 
@@ -70,148 +89,106 @@ const reloadClients = () => {
 <template>
   <div>
     <h1 class="h1 text-primary fw-bold">Clientes</h1>
-
+  
     <div class="d-md-flex justify-content-between w-100 mb-3">
       <div class="">
         <label class="h4 fw-bold">Buscar Cliente</label>
         <div class="input-group">
-          <input
-            type="text"
-            class="form-control"
-            placeholder="Buscar cliente"
-            aria-label="Buscar cliente"
-            v-model="search"
-          />
+          <input type="text" class="form-control" placeholder="Buscar cliente" aria-label="Buscar cliente"
+            v-model="search" />
           <button class="btn btn-primary text-secondary" type="button">
             Buscar
           </button>
         </div>
       </div>
       <div class="d-flex align-items-end justify-content-end mt-2 mt-md-0">
-        <button
-          class="btn btn-primary text-secondary w-100"
-          type="button"
-          data-bs-toggle="modal"
-          data-bs-target="#ModalSaveClient"
-        >
+        <button class="btn btn-primary text-secondary w-100" type="button" data-bs-toggle="modal"
+          data-bs-target="#ModalSaveClient">
           Agregar Cliente
         </button>
       </div>
     </div>
-
+      <loading v-model:active="isLoading"
+                 :can-cancel="true"/>       
     <div v-if="paginatedCards.length > 0">
       <main class="row row-cols-1 row-cols-md-3 row-cols-lg-5 g-2 g-lg-3">
-      <div v-for="card in paginatedCards" :key="card.id" class="col">
-        <div class="card itemList position-relative h-100">
-          <div class="dropdown dropstart">
-            <button
-              class="btn position-absolute top-0 end-0 m-0"
-              type="button"
-              data-bs-toggle="dropdown"
-              aria-expanded="false"
-            >
-              <i class="pi pi-ellipsis-v"></i>
-            </button>
-            <!-- Menú de opciones -->
-            <ul class="dropdown-menu">
-              <li>
-                <a
-                  class="dropdown-item"
-                  @click.prevent="() => onSelected(card.id)"
-                  data-bs-toggle="modal"
-                  data-bs-target="#ModalUpdateClient"
-                >
-                  Editar
-                </a>
-              </li>
-              <!-- Agrega más opciones según tus necesidades -->
-            </ul>
-          </div>
-          <div class="card-body d-flex flex-column" style="font-size: 1.1rem; width: 100%;">
-            <div class="d-flex justify-content-center">
-              <img src="https://cdn-icons-png.flaticon.com/512/1077/1077114.png" class="img-fluid" alt="...">
+        <div v-for="card in paginatedCards" :key="card.id" class="col">
+          <div class="card itemList position-relative h-100">
+            <div class="dropdown dropstart">
+              <button class="btn position-absolute top-0 end-0 m-0" type="button" data-bs-toggle="dropdown"
+                aria-expanded="false">
+                <i class="pi pi-ellipsis-v"></i>
+              </button>
+              <!-- Menú de opciones -->
+              <ul class="dropdown-menu">
+                <li>
+                  <a class="dropdown-item" @click.prevent="() => onSelected(card)" data-bs-toggle="modal"
+                    data-bs-target="#ModalUpdateClient">
+                    Editar
+                  </a>
+                </li>
+                <!-- Agrega más opciones según tus necesidades -->
+              </ul>
             </div>
+            <div class="card-body d-flex flex-column" style="font-size: 1.1rem; width: 100%;">
+              <div class="d-flex justify-content-center">
+                <img src="../../../assets/images/perfil.png" class="img-fluid" alt="...">
+              </div>
 
-            <p class="card-text mt-1 m-0 fw-semibold" style="height: auto">
-              {{ card.person.name }} {{ card.person.surname }} {{ card.person.lastname }}
-            </p>
-            <span class="card-text mt-2 fw-medium">Email: </span>
-            <p class="card-text m-0 p-0 text-truncate">
-              {{ card.email }}
-            </p>
-            <span class="card-text mt-2 fw-medium">Tel: </span>
-            <p class="card-text m-0 p-0 text-truncate">
-              {{ card.phoneNumber }}
-            </p>
-            <div class="d-flex justify-content-left mt-2">
-              <!-- Contenido adicional si es necesario -->
+
+              <p class="card-text mt-1 m-0 fw-semibold text-center" style="height: auto">
+                {{ card.person.name }} {{ card.person.surname }} {{ card.person.lastname }}
+              </p>
+              <span class="card-text mt-2 fw-medium">Email: </span>
+              <p class="card-text m-0 p-0 text-truncate">
+                {{ card.email }}
+              </p>
+              <span class="card-text mt-2 fw-medium">Tel: </span>
+              <p class="card-text m-0 p-0 text-truncate">
+                {{ card.phoneNumber }}
+              </p>
+              <div class="d-flex justify-content-left mt-2">
+                <!-- Contenido adicional si es necesario -->
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    </main>
+      </main>
     </div>
     <div v-else>
       <div class="text-center mt-5">
-        <img
-          src="@/assets/images/tite.png"
-          alt="not found"
-          class="img-fluid"
-          width="150"
-        />
+        <img src="@/assets/images/tite.png" alt="not found" class="img-fluid" width="150" />
         <h3 class="text-primary fw-bold">No se encontraron resultados</h3>
       </div>
     </div>
 
     <footer>
-      <nav
-        aria-label="pagination"
-        class="d-flex justify-content-md-end justify-content-center mt-3"
-      >
+      <nav aria-label="pagination" class="d-flex justify-content-md-end justify-content-center mt-3">
         <ul class="pagination">
-          <li
-            class="page-item"
-            :class="{ disabled: paginator.currentPage === 1 }"
-          >
-            <a
-              class="page-link"
-              href="#"
-              @click.prevent="goToPage(paginator.currentPage - 1)"
-              >Anterior</a
-            >
+          <li class="page-item" :class="{ disabled: paginator.currentPage === 1 }">
+            <a class="page-link" href="#" @click.prevent="goToPage(paginator.currentPage - 1)">Anterior</a>
           </li>
-          <li
-            class="page-item"
-            v-for="number in totalPages"
-            :key="number"
-            :class="{ active: number === paginator.currentPage }"
-          >
+          <li class="page-item" v-for="number in totalPages" :key="number"
+            :class="{ active: number === paginator.currentPage }">
             <a class="page-link" href="#" @click.prevent="goToPage(number)">{{
               number
             }}</a>
           </li>
-          <li
-            class="page-item"
-            :class="{ disabled: paginator.currentPage === totalPages }"
-          >
-            <a
-              class="page-link"
-              href="#"
-              @click.prevent="goToPage(paginator.currentPage + 1)"
-              >Siguiente</a
-            >
+          <li class="page-item" :class="{ disabled: paginator.currentPage === totalPages }">
+            <a class="page-link" href="#" @click.prevent="goToPage(paginator.currentPage + 1)">Siguiente</a>
           </li>
         </ul>
       </nav>
     </footer>
-     <ModalSaveClient @reloadCategories="reloadClients"/>
-    <ModalUpdateClient @reloadClients="reloadClients" :clients="onSelectedId"/> 
+    <ModalSaveClient @reloadCategories="reloadClients" />
+    <ModalUpdateClient v-if="onSelectedC" @reloadClients="reloadClients" :clients="onSelectedC" />
   </div>
 </template>
 
 <style scoped>
 .itemList {
-  transition: all 0.3s ease; /* Ajusta la duración según tus necesidades */
+  transition: all 0.3s ease;
+  /* Ajusta la duración según tus necesidades */
   /*  height: 300px; !* Alto de la tarjeta *!
   object-fit: cover; !* Asegura que el contenido de la tarjeta se ajuste correctamente *!*/
 }
