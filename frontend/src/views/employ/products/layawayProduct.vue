@@ -15,10 +15,10 @@ const getProducts = async () => {
   }
 };
 
-const getClients = async () => {
+const getSuppliers = async () => {
   try {
-    const response = await api.doGet("/clients");
-    clients.value = response.data.data;
+    const response = await api.doGet("/pageable/supplier");
+    suppliers.value = response.data.data;
     console.log(response.data.data);
   } catch (error) {
     console.log(error);
@@ -36,71 +36,21 @@ const getStaff = async () => {
 };
 
 onMounted(getProducts);
-onMounted(getClients);
+onMounted(getSuppliers);
 onMounted(getStaff);
 
 const onSelectedClient = (clientId: number) => {
   if (clientId == "none" && selectedClient.value) {
     selectedClient.value = {};
     console.log("valor del cliente cuando no es nada", selectedClient.value);
-    descount.value = 0;
-    total.value = calculateTotalCost();
   } else {
-    // const json = JSON.parse(JSON.stringify(clients.value))
-    selectedClient.value = clients.value.find(
+    // const json = JSON.parse(JSON.stringify(suppliers.value))
+    selectedClient.value = suppliers.value.find(
       (ele) => ele.id == parseInt(clientId)
     );
-    if (selectedClient.value.purchasesCount > 3) {
-      descount.value = 0.05;
-    } else {
-      descount.value = 0;
-    }
-    total.value = calculateTotalCost();
-
-    console.log(selectedClient.value);
   }
 };
 
-const onSelectedEmploye = (employeId: number) => {
-  if (employeId == "none" && selectedEmploye.value) {
-    selectedEmploye.value = {};
-    descount.value = 0;
-    total.value = calculateTotalCost();
-  } else {
-    // const json = JSON.parse(JSON.stringify(clients.value))
-    selectedEmploye.value = staff.value.find(
-      (ele) => ele.id == parseInt(employeId)
-    );
-    descount.value = 0.01;
-    total.value = calculateTotalCost();
-
-    console.log(selectedClient.value);
-  }
-};
-const calculateDescount = () => {
-  let totalToPay = selectedProducts.value.reduce(
-    (total, item) => total + item.uniPrice * item.quantitySold,
-    0
-  );
-  let totalDescount = totalToPay * descount.value;
-  return totalDescount;
-};
-const calculateSubtotalCost = () => {
-  return selectedProducts.value.reduce(
-    (total, item) => total + item.uniPrice * item.quantitySold,
-    0
-  );
-};
-const calculateTotalCost = () => {
-  let totalToPay = selectedProducts.value.reduce(
-    (total, item) => total + item.uniPrice * item.quantitySold,
-    0
-  );
-  if (descount.value != 0) {
-    totalToPay = totalToPay - totalToPay * descount.value;
-  }
-  return totalToPay;
-};
 
 const addProducts = (productId: number, quantitySold: number) => {
   // console.log("holaaaa",productId, quantitySold);
@@ -122,25 +72,17 @@ const addProducts = (productId: number, quantitySold: number) => {
       );
     }
   }
-  //   console.log("ya funka?",selectedProducts.value);
-  subtotal.value = calculateSubtotalCost();
-  total.value = calculateTotalCost();
 };
 
 const isButtonDisabled = ref(true);
 const isButtonDisabled2 = ref(true);
-const isButtonDisabled3 = ref(true);
 const items = ref([]);
-const clients = ref([]);
+const suppliers = ref([]);
 const staff = ref([]);
 const selectedClient = ref({});
-const selectedEmploye = ref({});
 const selectedProducts = ref([]);
-const subtotal = ref();
 const total = ref();
-const descount = ref(0);
 const needRegistration = ref(false);
-const needEmail = ref(false);
 const selectClientRef = ref(null);
 
 const dataUserForm = ref({
@@ -159,13 +101,6 @@ const payloadForSale = {
   charge: [],
   sendEmail: true,
 };
-const payloadForSaleEmploye = {
-  totalAmount: 0.0,
-  staffId: 0,
-  staffInfo: {},
-  charge: [],
-  sendEmail: true,
-};
 
 const saveSale = async () => {
   try {
@@ -173,7 +108,6 @@ const saveSale = async () => {
     payloadForSale.staffId = 1;
     payloadForSale.clientInfo = selectedClient.value;
     payloadForSale.charge = selectedProducts.value;
-    payloadForSale.sendEmail = needEmail.value;
     Swal.fire({
       title: "¿Segura que desea realizar la acción?",
       icon: "warning",
@@ -194,12 +128,10 @@ const saveSale = async () => {
             confirmButtonText: "Aceptar",
           });
         }
-        getClients();
+        getSuppliers();
         getProducts();
         selectedClient.value = {};
         selectedProducts.value = [];
-        subtotal.value = null;
-        total.value = null;
         selectClientRef.value.selectedIndex = 0;
       }
     });
@@ -214,7 +146,6 @@ const saveSaleNewClient = async () => {
     payloadForSale.staffId = 1;
     payloadForSale.clientInfo = dataUserForm.value;
     payloadForSale.charge = selectedProducts.value;
-    payloadForSale.sendEmail = needEmail.value;
 
     Swal.fire({
       title: "¿Segura que desea realizar la acción?",
@@ -236,7 +167,7 @@ const saveSaleNewClient = async () => {
             confirmButtonText: "Aceptar",
           });
         }
-        getClients();
+        getSuppliers();
         getProducts();
         dataUserForm.value = {
           phoneNumber: "",
@@ -248,49 +179,6 @@ const saveSaleNewClient = async () => {
           },
         };
         selectedProducts.value = [];
-        subtotal.value = null;
-        total.value = null;
-      }
-    });
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-const saveSaleStaff = async () => {
-  try {
-    payloadForSaleEmploye.totalAmount = total.value.toFixed(2);
-    payloadForSaleEmploye.staffId = 1;
-    payloadForSaleEmploye.staffInfo = selectedEmploye.value;
-    payloadForSaleEmploye.charge = selectedProducts.value;
-    payloadForSaleEmploye.sendEmail = needEmail.value;
-    Swal.fire({
-      title: "¿Segura que desea realizar la acción?",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Aceptar",
-      cancelButtonText: "Cancelar",
-      reverseButtons: true,
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        const res = await api.doPost("/sell", payloadForSaleEmploye);
-        console.log("respuerta de la vent ", res);
-        if (res.data.data) {
-          Swal.fire({
-            icon: "success",
-            title: "Acción realizada correctamente",
-            confirmButtonText: "Aceptar",
-          });
-        }
-        getClients();
-        getProducts();
-        selectedClient.value = {};
-        selectedProducts.value = [];
-        subtotal.value = null;
-        total.value = null;
-        selectClientRef.value.selectedIndex = 0;
       }
     });
   } catch (error) {
@@ -302,11 +190,6 @@ watch([() => selectedClient.value, () => selectedProducts.value], () => {
   // Verifica si tanto selectedClient como selectedProducts tienen valores
   isButtonDisabled.value =
     !selectedClient.value || selectedProducts.value.length === 0;
-});
-watch([() => selectedEmploye.value, () => selectedProducts.value], () => {
-  // Verifica si tanto selectedClient como selectedProducts tienen valores
-  isButtonDisabled3.value =
-    !selectedEmploye.value || selectedProducts.value.length === 0;
 });
 watch([() => needRegistration.value], () => {
   selectedClient.value = {};
@@ -330,22 +213,6 @@ watch(
       selectedProducts.value.length === 0;
   }
 );
-
-const selectedTab = ref("client");
-const handleTabClient = () => {
-  selectedTab.value = "client";
-  selectedClient.value = {};
-  selectedEmploye.value = {};
-  descount.value = 0;
-  total.value = calculateTotalCost();
-};
-const handleTabStaff = () => {
-  selectedTab.value = "staff";
-  selectedClient.value = {};
-  selectedEmploye.value = {};
-  descount.value = 0;
-  total.value = calculateTotalCost();
-};
 </script>
 
 <template>
@@ -400,34 +267,8 @@ const handleTabStaff = () => {
       </div>
       <div class="col">
         <div class="card ms-5 shadow">
-          <div class="card-header">
-            <ul class="nav nav-pills card-header-pills">
-              <li class="nav-item" @click="handleTabClient">
-                <a
-                  class="nav-link btn"
-                  :class="
-                    selectedTab === 'client'
-                      ? 'active bg-primary text-secondary'
-                      : 'text-black'
-                  "
-                  >Cliente</a
-                >
-              </li>
-              <li class="nav-item" @click="handleTabStaff">
-                <a
-                  class="nav-link btn"
-                  :class="
-                    selectedTab === 'staff'
-                      ? 'active bg-primary text-secondary'
-                      : 'text-black'
-                  "
-                  >Personal</a
-                >
-              </li>
-            </ul>
-          </div>
-          <div class="card-body" v-if="selectedTab === 'client'">
-            <h5 class="card-title">Datos del cliente</h5>
+          <div class="card-body">
+            <h5 class="card-title">Datos del proveedor</h5>
             <div class="form-check">
               <input
                 class="form-check-input"
@@ -513,7 +354,7 @@ const handleTabStaff = () => {
 
             <div v-if="!needRegistration">
               <label for="exampleFormControlInput1" class="form-label"
-                >Cliente</label
+                >Proveedor</label
               >
               <select
                 class="form-select"
@@ -522,11 +363,11 @@ const handleTabStaff = () => {
                 ref="selectClientRef"
               >
                 <option selected value="none" key="none">
-                  Selecciona un cliente
+                  Selecciona un proveedor
                 </option>
 
                 <option
-                  v-for="client in clients"
+                  v-for="client in suppliers"
                   :value="client.id"
                   :key="client.name"
                 >
@@ -555,67 +396,8 @@ const handleTabStaff = () => {
                 {{ selectedClient.person ? selectedClient.person.surname : "" }}
               </div>
               <div>
-                <strong>Correo:</strong>
-                {{ selectedClient ? selectedClient.email : "" }}
-              </div>
-              <div>
-                <strong>Teléfono:</strong>
-                {{ selectedClient ? selectedClient.phoneNumber : "" }}
-              </div>
-            </div>
-          </div>
-
-          <div class="card-body" v-if="selectedTab === 'staff'">
-            <h5 class="card-title">Datos del empleado</h5>
-
-            <div>
-              <label for="exampleFormControlInput1" class="form-label"
-                >Empleado</label
-              >
-              <select
-                class="form-select"
-                aria-label="Default select example"
-                @input="onSelectedEmploye($event.target.value)"
-                ref="selectClientRef"
-              >
-                <option selected value="none" key="none">
-                  Selecciona un empleado
-                </option>
-
-                <option
-                  v-for="employe in staff"
-                  :value="employe.id"
-                  :key="employe.id"
-                >
-                  <span class="font-weight-bold"></span>
-                  {{
-                    employe.person.name +
-                    " " +
-                    employe.person.lastname +
-                    " " +
-                    employe.person.surname
-                  }}
-                </option>
-              </select>
-              <div class="mt-2">
-                <strong> Nombre:</strong>
-                {{ selectedEmploye.person ? selectedEmploye.person.name : "" }}
-              </div>
-              <div>
-                <strong>Apellido paterno:</strong>
-                {{
-                  selectedEmploye.person ? selectedEmploye.person.lastname : ""
-                }}
-              </div>
-              <div>
-                <strong>Apellido materno:</strong>
-                {{
-                  selectedEmploye.person ? selectedEmploye.person.surname : ""
-                }}
-              </div>
-              <div>
-                <strong>Correo:</strong>
-                {{ selectedEmploye ? selectedEmploye.email : "" }}
+                <strong>Contacto:</strong>
+                {{ selectedClient ? selectedClient.contact : "" }}
               </div>
             </div>
           </div>
@@ -630,31 +412,6 @@ const handleTabStaff = () => {
               <strong>- Piezas: </strong>
               {{ sProduct ? sProduct.quantitySold : "" }}
             </div>
-            <div class="mt-4">
-              <strong>Subtotal: </strong>
-              <div v-if="subtotal">${{ subtotal.toFixed(2) }} MXN</div>
-            </div>
-            <div class="mt-4" v-if="descount">
-              <strong>Descuento: </strong>
-              <div v-if="subtotal">
-                ${{ calculateDescount().toFixed(2) }} MXN
-              </div>
-            </div>
-            <div class="mt-4">
-              <strong>Total: </strong>
-              <div v-if="total">${{ total.toFixed(2) }} MXN</div>
-            </div>
-            <div class="form-check my-3">
-              <input
-                class="form-check-input"
-                type="checkbox"
-                v-model="needEmail"
-                id="confirmation"
-              />
-              <label class="form-check-label" for="confirmation">
-                ¿Envíar confirmación?
-              </label>
-            </div>
             <div class="text-center">
               <button
                 class="btn btn-primary text-secondary mt-3"
@@ -662,7 +419,7 @@ const handleTabStaff = () => {
                 :disabled="isButtonDisabled"
                 v-if="!needRegistration && selectedTab !== 'staff'"
               >
-                Confirmar compra
+                Confirmar re-stock
               </button>
               <button
                 class="btn btn-primary text-secondary mt-3"
@@ -670,15 +427,7 @@ const handleTabStaff = () => {
                 :disabled="isButtonDisabled2"
                 v-if="needRegistration && selectedTab !== 'staff'"
               >
-                Confirmar compra
-              </button>
-              <button
-                class="btn btn-primary text-secondary mt-3"
-                @click="saveSaleStaff()"
-                :disabled="isButtonDisabled3"
-                v-if="selectedTab === 'staff'"
-              >
-                Confirmar compra
+                Confirmar re-stock2
               </button>
             </div>
           </div>
