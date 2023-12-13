@@ -350,7 +350,7 @@ const handleTabStaff = () => {
 
 <template>
   <div>
-    <h1 class="h1 text-primary fw-bold">Re-stock</h1>
+    <h1 class="h1 text-primary fw-bold">Ventas</h1>
   </div>
   <div class="container-fluid">
     <div class="row">
