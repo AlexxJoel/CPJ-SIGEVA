@@ -4,8 +4,11 @@ import ModalUpdateProduct from "@/views/admin/products/ModalUpdateProduct.vue";
 import ModalSaveProduct from "@/views/admin/products/ModalSaveProduct.vue";
 
 import api from "../../../config/http-client.gateway.ts";
+import NotFoundElements from "@/components/NotFoundElements.vue";
+import SkeletonCards from "@/components/SkeletonCards.vue";
 
 const Swal = inject("$swal");
+const isLoading = ref(false);
 
 const selectedProduct = ref(null);
 
@@ -16,11 +19,13 @@ const editProduct = (product) => {
 let response;
 const getProducts = async () => {
   try {
+    isLoading.value = true;
     response = await api.doPost(`/pageable/product?name=`);
     items.value = response.data.data;
+    isLoading.value = false;
   } catch (error) {
+    isLoading.value = false;
     console.log("Error al obtener productos", error);
-
   }
 };
 
@@ -117,7 +122,12 @@ const changeStatus = (productId: number) => {
       </div>
     </div>
 
-    <div v-if="paginatedCards.length > 0">
+    <SkeletonCards :loading="isLoading" :quantity-cards="10" :col-lg="4"/>
+
+    <div v-if="!isLoading && paginatedCards.length == 0">
+      <NotFoundElements/>
+    </div>
+    <div v-else>
       <main class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-2 g-lg-3">
         <div v-for="card in paginatedCards" :key="card.id">
           <div class="col">
@@ -146,7 +156,7 @@ const changeStatus = (productId: number) => {
 
               <div class="card-body" style="font-size: 1.1rem; width: 100%;">
                 <div class="d-flex justify-content-center">
-                  <img src="@/assets/images/cristal.png" class="img-fluid px-4" alt="...">
+                  <img src="@/assets/images/cristal.png" class="img-fluid px-4" alt="..." width="210">
                 </div>
                 <div >
                   <p class="card-text mt-1 m-0 fw-semibold" style="height: auto; font-size: 1.2rem;">
@@ -154,7 +164,7 @@ const changeStatus = (productId: number) => {
                   </p>
                   <span class="card-text mt-2 fw-semibold">Descripción: </span>
                   <p class="card-text m-0 p-0 text-truncate">
-                    {{ card.description }}
+                    {{ card.description? card.description : 'Sin descripción' }}
                   </p>
 
                   <span class="card-text mt-2 fw-semibold">Categoria: </span>
@@ -183,12 +193,6 @@ const changeStatus = (productId: number) => {
           </div>
         </div>
       </main>
-    </div>
-    <div v-else>
-      <div class="text-center mt-5">
-        <img src="@/assets/images/tite.png" alt="not found" class="img-fluid" width="150"/>
-        <h3 class="text-primary fw-bold">No se encontraron resultados</h3>
-      </div>
     </div>
 
     <footer>

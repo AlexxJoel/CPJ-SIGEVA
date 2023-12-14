@@ -6,15 +6,21 @@ import ModalSaveCategory from "@/views/admin/categories/ModalSaveCategory.vue";
 import ModalUpdateCategory from "@/views/admin/categories/ModalUpdateCategory.vue";
 
 import api from "../../../config/http-client.gateway.ts";
+import SkeletonCards from "@/components/SkeletonCards.vue";
+import NotFoundElements from "@/components/NotFoundElements.vue";
 
+const isLoading = ref(false);
 const Swal = inject("$swal");
 
 let response;
 const getCategories = async () => {
   try {
+    isLoading.value = true;
     response = await api.doGet("/pageable/category");
     items.value = response.data.data;
+    isLoading.value = false;
   } catch (error) {
+    isLoading.value = false;
     console.log("soy el erro", error);
   }
 };
@@ -22,15 +28,10 @@ const getCategories = async () => {
 const onSelectedId = ref()
 
 
-const onSelected = (cardId: number)=>{
-  console.log("card", cardId);
-  
-  onSelectedId.value = cardId;
-}
+const onSelected = (cardId: number)=>onSelectedId.value = cardId;
 onMounted(getCategories);
 
 const items = ref([]);
-console.log("soy el item", items.value);
 
 const paginator = ref({
   currentPage: 1,
@@ -61,14 +62,9 @@ const goToPage = (page: number) => {
   window.scrollTo({ top: 0, behavior: "smooth" });
 };
 
-const reloadCategories = () => {
-  console.log("valiko");
-
-  getCategories();
-};
+const reloadCategories = () => getCategories();;
 
 const changeStatus = (cardId: number) => {
-  console.log("idSelected", cardId);
 
   Swal.fire({
     title: "¿Segura que desea realizar la acción?",
@@ -82,7 +78,6 @@ const changeStatus = (cardId: number) => {
   }).then(async (result) => {
     if (result.isConfirmed) {
       const res = await api.doDelete(`/category/${cardId}`);
-      console.log("resChange", res);
       if (res.data.data) {
         Swal.fire({
           icon: "success",
@@ -129,7 +124,12 @@ const changeStatus = (cardId: number) => {
       </div>
     </div>
 
-    <div v-if="paginatedCards.length > 0">
+    <SkeletonCards :loading="isLoading" :quantity-cards="10" :col-lg="5"/>
+
+    <div v-if="!isLoading && paginatedCards.length == 0">
+      <NotFoundElements/>
+    </div>
+    <div v-else>
       <main class="row row-cols-2 row-cols-md-3 row-cols-lg-6 g-2 g-lg-3">
         <div v-for="card in paginatedCards" :key="card.id">
           <div class="col">
@@ -185,35 +185,10 @@ const changeStatus = (cardId: number) => {
             </div>
           </div>
         </div>
-        <!--      <div v-for="i in 10" :key="i" class="col">
-                <div class="card" aria-hidden="true">
-                  <div class="card-body">
-                    <div class="placeholder-glow d-flex justify-content-center">
-                      <img class="placeholder img-fluid" width="120" height="120" alt=".." src="#"/>
-                    </div>
-                  </div>
-                  <p class="card-text mt-1 ms-3 placeholder-glow">
-                    <span class="placeholder col-8"></span>
-                  </p>
-                  <div class="d-flex justify-content-center m-3">
-                    <button class="btn btn-primary text-secondary w-100 placeholder disabled" type="button"
-                            aria-disabled="true"></button>
-                  </div>
-                </div>
-              </div>-->
+
       </main>
     </div>
-    <div v-else>
-      <div class="text-center mt-5">
-        <img
-          src="@/assets/images/tite.png"
-          alt="not found"
-          class="img-fluid"
-          width="150"
-        />
-        <h3 class="text-primary fw-bold">No se encontraron resultados</h3>
-      </div>
-    </div>
+
 
     <footer>
       <nav

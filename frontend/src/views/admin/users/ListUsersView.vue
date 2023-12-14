@@ -1,10 +1,10 @@
 <template>
   <div>
-    <h1 class="h1 text-primary fw-bold">Proveedores</h1>
+    <h1 class="h1 text-primary fw-bold">Usuarios</h1>
 
     <div class="d-md-flex justify-content-between w-100 mb-3">
       <div class="">
-        <label class="h4 fw-bold">Buscar proveedor</label>
+        <label class="h4 fw-bold">Buscar Usuario</label>
         <div class="input-group">
           <input type="text" class="form-control" placeholder="Buscar proveedor" aria-label="Buscar proveedor"
                  v-model="search">
@@ -13,7 +13,7 @@
       </div>
       <div class="d-flex align-items-end justify-content-end mt-2 mt-md-0">
         <button class="btn btn-primary text-secondary w-100" type="button" data-bs-toggle="modal"
-                data-bs-target="#addProviderModal">Agregar proveedor
+                data-bs-target="#addProviderModal">Agregar usuario
         </button>
       </div>
     </div>
@@ -65,8 +65,8 @@
         </ul>
       </nav>
     </footer>
-    <AddProviderUser @getSuppliers="getSupplier" />
-    <UpdateProviderUser v-if="itemSelected" :itemSelected="itemSelected" @reloadSupplier="getSupplier"/>
+    <modal-add-user @getSuppliers="getSupplier" />
+    <modal-update-user v-if="itemSelected" :itemSelected="itemSelected" @reloadSupplier="getSupplier"/>
 
   </div>
 </template>
@@ -74,12 +74,12 @@
 <script setup lang="ts">
 //pagination with mock data
 import {computed, onMounted, ref} from "vue";
-import AddProviderUser from "./addProviderUser.vue";
 import api from "@/config/http-client.gateway"
 import {type  SupplierDto} from "@/modules/supplier/dtos/SupplierDto";
 import SkeletonCards from "@/components/SkeletonCards.vue";
 import NotFoundElements from "@/components/NotFoundElements.vue";
-import UpdateProviderUser from "@/views/admin/supplier/UpdateProviderUser.vue";
+import ModalUpdateUser from "@/views/admin/users/ModalUpdateUser.vue";
+import ModalAddUser from "@/views/admin/users/ModalAddUser.vue";
 
 //  general data
 const loading = ref(false);

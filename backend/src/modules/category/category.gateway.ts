@@ -42,7 +42,6 @@ const findAll = async () => {
     try {
         const pool = PoolSingleton.getInstance();
         const { rows: categoryRows } = await pool.query(`select * from categories order by id asc;`);
-        console.log(categoryRows);
         return mapCategoriesResponse(categoryRows);
     } catch (error) {
         console.log(error);
