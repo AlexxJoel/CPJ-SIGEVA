@@ -25,19 +25,8 @@ const getSuppliers = async () => {
   }
 };
 
-const getStaff = async () => {
-  try {
-    const response = await api.doGet("/pageable/staff");
-    staff.value = response.data.data;
-    console.log(response.data.data);
-  } catch (error) {
-    console.log(error);
-  }
-};
-
 onMounted(getProducts);
 onMounted(getSuppliers);
-onMounted(getStaff);
 
 const onSelectedClient = (clientId: number) => {
   if (clientId == "none" && selectedClient.value) {
