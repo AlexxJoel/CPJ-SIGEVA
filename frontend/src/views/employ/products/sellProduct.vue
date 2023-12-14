@@ -1,15 +1,21 @@
 <script setup lang="ts">
-import api from "../../../config/http-client.gateway.ts";
 import { onMounted, ref, inject, watch } from "vue";
+import api from "../../../config/http-client.gateway";
+import type { ProductSold } from "../../../modules/product/dto/productSold.Dto";
+
 const Swal = inject("$swal");
+
+
 const getProducts = async () => {
   try {
     const response = await api.doPost("/pageable/product", { name: "" });
-    response.data.data.map((element) => {
+    items.value = response.data.data.filter(
+      (obj: ProductSold) => obj.quantity !== 0
+    );
+    items.value.map((element: ProductSold, index) => {
+      element.index = index + 1;
       element.quantitySold = 0;
     });
-    items.value = response.data.data.filter((obj) => obj.quantity !== 0);
-    console.log(response.data.data);
   } catch (error) {
     console.log(error);
   }
@@ -19,7 +25,6 @@ const getClients = async () => {
   try {
     const response = await api.doGet("/clients");
     clients.value = response.data.data;
-    console.log(response.data.data);
   } catch (error) {
     console.log(error);
   }
@@ -29,7 +34,6 @@ const getStaff = async () => {
   try {
     const response = await api.doGet("/pageable/staff");
     staff.value = response.data.data;
-    console.log(response.data.data);
   } catch (error) {
     console.log(error);
   }
@@ -39,8 +43,8 @@ onMounted(getProducts);
 onMounted(getClients);
 onMounted(getStaff);
 
-const onSelectedClient = (clientId: number) => {
-  if (clientId == "none" && selectedClient.value) {
+const onSelectedClient = (clientId: string) => {
+  if (clientId === "0" && selectedClient.value) {
     selectedClient.value = {};
     console.log("valor del cliente cuando no es nada", selectedClient.value);
     descount.value = 0;
@@ -183,7 +187,7 @@ const saveSale = async () => {
       confirmButtonText: "Aceptar",
       cancelButtonText: "Cancelar",
       reverseButtons: true,
-    }).then(async (result) => {
+    }).then(async (result: any) => {
       if (result.isConfirmed) {
         const res = await api.doPost("/sell", payloadForSale);
         console.log("respuerta de la vent ", res);
@@ -521,7 +525,7 @@ const handleTabStaff = () => {
                 @input="onSelectedClient($event.target.value)"
                 ref="selectClientRef"
               >
-                <option selected value="none" key="none">
+                <option selected value=0 key=0 disabled>
                   Selecciona un cliente
                 </option>
 
@@ -578,7 +582,7 @@ const handleTabStaff = () => {
                 @input="onSelectedEmploye($event.target.value)"
                 ref="selectClientRef"
               >
-                <option selected value="none" key="none">
+                <option selected value=0 key=0 disabled>
                   Selecciona un empleado
                 </option>
 
