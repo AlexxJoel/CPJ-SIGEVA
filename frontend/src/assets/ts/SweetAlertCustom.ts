@@ -2,7 +2,7 @@ import Swal,  { type SweetAlertIcon} from 'sweetalert2';
 
 export default class SweetAlertCustom {
     static success(title: string, text: string) {
-        Swal.fire({
+        return  Swal.fire({
             title: title,
             text: text,
             icon: 'success',
@@ -11,7 +11,7 @@ export default class SweetAlertCustom {
     }
 
     static successTime(title: string, text: string) {
-        Swal.fire({
+        return Swal.fire({
             title: title,
             text: text,
             icon: 'success',
@@ -21,7 +21,7 @@ export default class SweetAlertCustom {
     }
 
     static error(title: string, text: string) {
-        Swal.fire({
+        return Swal.fire({
             title: title,
             text: text,
             icon: 'error',
@@ -30,7 +30,7 @@ export default class SweetAlertCustom {
     }
 
     static errorTime(title: string, text: string) {
-        Swal.fire({
+        return Swal.fire({
             title: title,
             text: text,
             icon: 'error',
@@ -40,7 +40,7 @@ export default class SweetAlertCustom {
     }
 
     static warning(title: string, text: string) {
-        Swal.fire({
+        return Swal.fire({
             title: title,
             text: text,
             icon: 'warning',
@@ -49,7 +49,7 @@ export default class SweetAlertCustom {
     }
 
     static info(title: string, text: string) {
-        Swal.fire({
+        return Swal.fire({
             title: title,
             text: text,
             icon: 'info',
@@ -83,7 +83,7 @@ export default class SweetAlertCustom {
         if (!title) title = 'Cargando';
         if (!text) text = 'Por favor espere...';
 
-        Swal.fire({
+        return Swal.fire({
             title: title,
             text: text,
             allowOutsideClick: false,
@@ -91,7 +91,7 @@ export default class SweetAlertCustom {
             showConfirmButton: false,
             showCancelButton: false,
             showCloseButton: false,
-            didOpen: () => {
+            willOpen: () => {
                 Swal.showLoading();
             }
         });

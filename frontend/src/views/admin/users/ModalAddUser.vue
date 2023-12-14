@@ -1,5 +1,5 @@
 <template>
-  <div class="modal fade" id="addProviderModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true"
+  <div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true"
        ref="saveSupllierModal">
     <div class="modal-dialog">
       <form @submit="onSubmit">
@@ -12,48 +12,33 @@
           <div class="modal-body">
             <div class="row">
               <div class="col">
-                <label for="productName" class="form-label">Contacto</label>
+
+
+                <label for="productName" class="form-label">Usuario</label>
                 <input type="text" class="form-control" id="productName" placeholder="Forma de contacto"
-                       :class="{ 'is-invalid': cMeta.touched && !cMeta.valid, 'is-valid': cMeta.valid }"
-                       v-model="contact" @blur="cBlur"/>
-                <div v-if="!cMeta.valid" class="invalid-feedback">{{ cError }}</div>
+                       v-model="username" @blur="uBlur" disabled/>
+                <div v-if="!uMeta.valid" class="invalid-feedback">{{ uError }}</div>
               </div>
               <div class="col">
-                <label for="productUnitPrice" class="form-label">Nombre</label>
+                <label for="productUnitPrice" class="form-label">Role</label>
                 <input type="text" class="form-control" id="productUnitPrice" placeholder="Nombre(s)"
-                       :class="{ 'is-invalid': nMeta.touched && !nMeta.valid, 'is-valid': nMeta.valid }"
-                       v-model="name" @blur="nBlur"/>
-                <div v-if="!nMeta.valid" class="invalid-feedback">{{ nError }}</div>
-              </div>
-            </div>
-
-            <div class="row">
-              <div class="col">
-                <label for="productQuantity" class="form-label">Primer apellido</label>
-                <input type="text" class="form-control" id="productQuantity" placeholder="Primer apellido"
-                       :class="{ 'is-invalid': sMeta.touched && !sMeta.valid, 'is-valid': sMeta.valid }"
-                       v-model="surname" @blur="sBlur"/>
-                <div v-if="!sMeta.valid" class="invalid-feedback">{{ sError }}</div>
-              </div>
-              <div class="col">
-                <label for="productUnitPrice" class="form-label">Segundo Apellido</label>
-                <input type="text" class="form-control" id="productUnitPrice" placeholder="Segundo Apellido"
-                       :class="{ 'is-invalid': lMeta.touched && !lMeta.valid, 'is-valid':  lMeta.touched &&  lMeta.valid }"
-                       v-model="lastname" @blur="lBlur"/>
-                <div v-if="!lMeta.valid" class="invalid-feedback">{{ lError }}</div>
-
+                       v-model="role" @blur="rBlur" disabled/>
+                <div v-if="!rMeta.valid" class="invalid-feedback">{{ rError }}</div>
               </div>
             </div>
 
           </div>
           <div class="modal-footer">
-            <button type="button" id="closeSaveProduct" class="btn btn-danger" data-bs-dismiss="modal"
-                    @click="resetForm()">
-              Cerrar
-            </button>
-            <button type="submit" class="btn btn-primary text-secondary" :disabled="isDisabled">
-              Guardar
-            </button>
+
+            <div>
+              <button type="button" id="closeSaveProduct" class="btn btn-danger" data-bs-dismiss="modal"
+                      @click="resetForm()">
+                Cerrar
+              </button>
+              <button type="submit" class="btn btn-primary text-secondary" :disabled="isDisabled">
+                Guardar
+              </button>
+            </div>
           </div>
         </div>
       </form>
@@ -68,37 +53,34 @@ import {useField, useForm} from "vee-validate";
 import api from "../../../config/http-client.gateway";
 
 
-const Swal = inject("$swal");
 const app = getCurrentInstance();
 const SwalCustom = app?.appContext.config.globalProperties.$swalCustom;
 
 //define emits
-const emits = defineEmits(['getSuppliers',])
+const emits = defineEmits(['getUsers',])
 
 
 // Define validation schema
 const schema = yup.object({
-  contact: yup.number().required('Ingresa el contacto').typeError('Ingresa un número').integer('Ingresa un número').positive('Ingresa un número positivo'),
-  name: yup.string().required('Ingresa el nombre').trim(),
-  surname: yup.string().required('Ingresa el apellido paterno').trim(),
-  lastname: yup.string().nullable(),
+  username: yup.string(),
+  role: yup.number(),
+  status: yup.boolean()
 });
 
 // Use the schema in your component
 let {handleSubmit, resetForm} = useForm({validationSchema: schema});
 
-let {value: contact, errorMessage: cError, handleBlur: cBlur, meta: cMeta} = useField("contact");
-let {value: name, errorMessage: nError, handleBlur: nBlur, meta: nMeta} = useField("name");
-let {value: surname, errorMessage: sError, handleBlur: sBlur, meta: sMeta} = useField("surname");
-let {value: lastname, errorMessage: lError, handleBlur: lBlur, meta: lMeta} = useField("lastname");
+let {value: username, errorMessage: uError, handleBlur: uBlur, meta: uMeta} = useField("username");
+let {value: role, errorMessage: rError, handleBlur: rBlur, meta: rMeta} = useField("role");
+let {value: status, errorMessage: sError, handleBlur: sBlur, meta: sMeta} = useField("status");
 
-const isDisabled = computed(() => !cMeta.valid || !nMeta.valid || !sMeta.valid || !lMeta.valid)
+const isDisabled = computed(() => !uMeta || !rMeta)
 
 
 let onSubmit = handleSubmit(async values => {
 
   try {
-    const respQuestion = await SwalCustom.question('¿Segura que desea realizar la acción?', 'Se agregará un nuevo proveedor', 'question', 'Guardar' )
+    const respQuestion = await SwalCustom.question('¿Segura que desea realizar la acción?', 'Se agregará un nuevo proveedor', 'question', 'Guardar')
     if (!respQuestion.isConfirmed) return;
     SwalCustom.loading('Agregando proveedor', 'Espere un momento por favor')
     const res = await api.doPost("/supplier", {
@@ -117,7 +99,7 @@ let onSubmit = handleSubmit(async values => {
       if (btnCloseModal) {
         btnCloseModal.click();
         resetForm()
-        emits('getSuppliers')
+        emits('getUsers')
 
       }
     }
@@ -125,7 +107,7 @@ let onSubmit = handleSubmit(async values => {
 
   } catch (error) {
     console.log(error);
-  }finally {
+  } finally {
   }
 })
 
@@ -135,8 +117,6 @@ const hideModal = () => {
     closeButton.click();
   }
 }
-
-
 
 
 </script>
