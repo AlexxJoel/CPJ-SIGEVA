@@ -1,212 +1,6 @@
-<script setup lang="ts">
-import api from "../../../config/http-client.gateway.ts";
-import { onMounted, ref, inject, watch } from "vue";
-const Swal = inject("$swal");
-const getProducts = async () => {
-  try {
-    const response = await api.doPost("/pageable/product", { name: "" });
-    response.data.data.map((element) => {
-      element.quantitySold = 0;
-    });
-    items.value = response.data.data.filter((obj) => obj.quantity !== 0);
-    console.log(response.data.data);
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-const getSuppliers = async () => {
-  try {
-    const response = await api.doGet("/pageable/supplier");
-    suppliers.value = response.data.data;
-    console.log(response.data.data);
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-onMounted(getProducts);
-onMounted(getSuppliers);
-
-const onSelectedClient = (clientId: number) => {
-  if (clientId == "none" && selectedClient.value) {
-    selectedClient.value = {};
-    console.log("valor del cliente cuando no es nada", selectedClient.value);
-  } else {
-    // const json = JSON.parse(JSON.stringify(suppliers.value))
-    selectedClient.value = suppliers.value.find(
-      (ele) => ele.id == parseInt(clientId)
-    );
-  }
-};
-
-
-const addProducts = (productId: number, quantitySold: number) => {
-  // console.log("holaaaa",productId, quantitySold);
-  if (
-    !selectedProducts.value.find((element) => element.id == parseInt(productId))
-  ) {
-    selectedProducts.value.push({
-      ...items.value.find((element) => element.id == parseInt(productId)),
-      quantitySold: quantitySold,
-    });
-  } else {
-    const charge = selectedProducts.value.find(
-      (element) => element.id == parseInt(productId)
-    );
-    charge.quantitySold = quantitySold;
-    if (charge.quantitySold == 0) {
-      selectedProducts.value = selectedProducts.value.filter(
-        (obj) => obj.id !== parseInt(productId)
-      );
-    }
-  }
-};
-
-const isButtonDisabled = ref(true);
-const isButtonDisabled2 = ref(true);
-const items = ref([]);
-const suppliers = ref([]);
-const staff = ref([]);
-const selectedClient = ref({});
-const selectedProducts = ref([]);
-const total = ref();
-const needRegistration = ref(false);
-const selectClientRef = ref(null);
-
-const dataUserForm = ref({
-  phoneNumber: "",
-  email: "",
-  person: {
-    name: "",
-    lastname: "",
-    surname: "",
-  },
-});
-const payloadForSale = {
-  totalAmount: 0.0,
-  staffId: 0,
-  clientInfo: {},
-  charge: [],
-  sendEmail: true,
-};
-
-const saveSale = async () => {
-  try {
-    payloadForSale.totalAmount = total.value.toFixed(2);
-    payloadForSale.staffId = 1;
-    payloadForSale.clientInfo = selectedClient.value;
-    payloadForSale.charge = selectedProducts.value;
-    Swal.fire({
-      title: "¿Segura que desea realizar la acción?",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Aceptar",
-      cancelButtonText: "Cancelar",
-      reverseButtons: true,
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        const res = await api.doPost("/sell", payloadForSale);
-        console.log("respuerta de la vent ", res);
-        if (res.data.data) {
-          Swal.fire({
-            icon: "success",
-            title: "Acción realizada correctamente",
-            confirmButtonText: "Aceptar",
-          });
-        }
-        getSuppliers();
-        getProducts();
-        selectedClient.value = {};
-        selectedProducts.value = [];
-        selectClientRef.value.selectedIndex = 0;
-      }
-    });
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-const saveSaleNewClient = async () => {
-  try {
-    payloadForSale.totalAmount = total.value.toFixed(2);
-    payloadForSale.staffId = 1;
-    payloadForSale.clientInfo = dataUserForm.value;
-    payloadForSale.charge = selectedProducts.value;
-
-    Swal.fire({
-      title: "¿Segura que desea realizar la acción?",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Aceptar",
-      cancelButtonText: "Cancelar",
-      reverseButtons: true,
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        const res = await api.doPost("/sell", payloadForSale);
-        console.log("respuerta de la vent ", res);
-        if (res.data.data) {
-          Swal.fire({
-            icon: "success",
-            title: "Acción realizada correctamente",
-            confirmButtonText: "Aceptar",
-          });
-        }
-        getSuppliers();
-        getProducts();
-        dataUserForm.value = {
-          phoneNumber: "",
-          email: "",
-          person: {
-            name: "",
-            lastname: "",
-            surname: "",
-          },
-        };
-        selectedProducts.value = [];
-      }
-    });
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-watch([() => selectedClient.value, () => selectedProducts.value], () => {
-  // Verifica si tanto selectedClient como selectedProducts tienen valores
-  isButtonDisabled.value =
-    !selectedClient.value || selectedProducts.value.length === 0;
-});
-watch([() => needRegistration.value], () => {
-  selectedClient.value = {};
-});
-watch(
-  [
-    () => dataUserForm.value.email,
-    () => dataUserForm.value.phoneNumber,
-    () => dataUserForm.value.person.name,
-    () => dataUserForm.value.person.lastname,
-    () => dataUserForm.value.person.surname,
-    () => selectedProducts.value,
-  ],
-  () => {
-    isButtonDisabled2.value =
-      !dataUserForm.value.email ||
-      !dataUserForm.value.phoneNumber ||
-      !dataUserForm.value.person.name ||
-      !dataUserForm.value.person.lastname ||
-      !dataUserForm.value.person.surname ||
-      selectedProducts.value.length === 0;
-  }
-);
-</script>
-
 <template>
   <div>
-    <h1 class="h1 text-primary fw-bold">Ventas</h1>
+    <h1 class="h1 text-primary fw-bold">Reabastecimientos</h1>
   </div>
   <div class="container-fluid">
     <div class="row">
@@ -217,12 +11,12 @@ watch(
               <tr>
                 <th scope="col">#</th>
                 <th scope="col">Producto</th>
-                <th scope="col">Unidades</th>
+                <th scope="col">Unidades a agregar</th>
               </tr>
             </thead>
             <tbody>
               <tr v-for="product in items" :key="product.id">
-                <th scope="row">1</th>
+                <th scope="row">{{ product.index }}</th>
                 <td>
                   <h5>{{ product.name }}</h5>
                   <span class="badge bg-primary">{{
@@ -245,7 +39,6 @@ watch(
                       v-model="product.quantitySold"
                       @change="addProducts(product.id, product.quantitySold)"
                       min="0"
-                      :max="product.quantity"
                     />
                   </div>
                 </td>
@@ -271,33 +64,17 @@ watch(
             </div>
             <div v-if="needRegistration">
               <div class="container mt-2">
-                <h4 class="mb-4">Registro de cliente</h4>
+                <h4 class="mb-4">Registro del proveedor</h4>
                 <form>
                   <div class="mb-3">
-                    <label for="telefono" class="form-label"
-                      >Número de Teléfono</label
-                    >
+                    <label for="contact" class="form-label">Contacto</label>
                     <input
-                      type="tel"
+                      type="text"
                       class="form-control"
-                      id="telefono"
-                      pattern="[0-9]+"
-                      placeholder="Ingresa tu número de teléfono"
+                      id="contact"
+                      placeholder="Ingresa el contacto"
                       required
-                      v-model="dataUserForm.phoneNumber"
-                    />
-                  </div>
-
-                  <div class="mb-3">
-                    <label for="correo" class="form-label"
-                      >Correo Electrónico</label
-                    >
-                    <input
-                      type="email"
-                      class="form-control"
-                      id="correo"
-                      placeholder="Ingresa tu correo electrónico"
-                      v-model="dataUserForm.email"
+                      v-model="dataSupplierForm.contact"
                     />
                   </div>
 
@@ -308,7 +85,7 @@ watch(
                       class="form-control"
                       id="nombre"
                       placeholder="Ingresa tu nombre"
-                      v-model="dataUserForm.person.name"
+                      v-model="dataSupplierForm.person.name"
                     />
                   </div>
 
@@ -321,7 +98,7 @@ watch(
                       class="form-control"
                       id="apellidoPaterno"
                       placeholder="Ingresa tu apellido paterno"
-                      v-model="dataUserForm.person.lastname"
+                      v-model="dataSupplierForm.person.lastname"
                     />
                   </div>
 
@@ -334,7 +111,7 @@ watch(
                       class="form-control"
                       id="apellidoMaterno"
                       placeholder="Ingresa tu apellido materno"
-                      v-model="dataUserForm.person.surname"
+                      v-model="dataSupplierForm.person.surname"
                     />
                   </div>
                 </form>
@@ -348,45 +125,55 @@ watch(
               <select
                 class="form-select"
                 aria-label="Default select example"
-                @input="onSelectedClient($event.target.value)"
-                ref="selectClientRef"
+                @input="onSelectedSupplier($event.target.value)"
+                ref="selectedSupplierRef"
               >
-                <option selected value="none" key="none">
+                <option selected value="0" key="0" disabled>
                   Selecciona un proveedor
                 </option>
 
                 <option
-                  v-for="client in suppliers"
-                  :value="client.id"
-                  :key="client.name"
+                  v-for="supplier in suppliers"
+                  :value="supplier.id"
+                  :key="supplier.id"
                 >
                   <span class="font-weight-bold">Nombre:</span>
                   {{
-                    client.person.name +
+                    supplier.person.name +
                     " " +
-                    client.person.lastname +
+                    supplier.person.surname +
                     " " +
-                    client.person.surname
+                    `${
+                      supplier.person.lastname !== null
+                        ? supplier.person.lastname
+                        : ""
+                    }`
                   }}
                 </option>
               </select>
               <div class="mt-2">
                 <strong> Nombre:</strong>
-                {{ selectedClient.person ? selectedClient.person.name : "" }}
+                {{
+                  selectedSupplier.person ? selectedSupplier.person.name : ""
+                }}
               </div>
               <div>
                 <strong>Apellido paterno:</strong>
                 {{
-                  selectedClient.person ? selectedClient.person.lastname : ""
+                  selectedSupplier.person ? selectedSupplier.person.surname : ""
                 }}
               </div>
               <div>
                 <strong>Apellido materno:</strong>
-                {{ selectedClient.person ? selectedClient.person.surname : "" }}
+                {{
+                  selectedSupplier.person
+                    ? selectedSupplier.person.lastname
+                    : ""
+                }}
               </div>
               <div>
                 <strong>Contacto:</strong>
-                {{ selectedClient ? selectedClient.contact : "" }}
+                {{ selectedSupplier ? selectedSupplier.contact : "" }}
               </div>
             </div>
           </div>
@@ -394,7 +181,7 @@ watch(
 
         <div class="card ms-5 mt-2 shadow">
           <div class="card-body">
-            <h5 class="card-title mb-4">Resumen de compra</h5>
+            <h5 class="card-title mb-4">Resumen de reabastecimiento</h5>
             <div v-for="sProduct in selectedProducts" :key="sProduct.id">
               <strong>Producto: </strong>
               {{ sProduct ? sProduct.name : "" }}
@@ -404,19 +191,19 @@ watch(
             <div class="text-center">
               <button
                 class="btn btn-primary text-secondary mt-3"
-                @click="saveSale()"
+                @click="saveRestock()"
                 :disabled="isButtonDisabled"
-                v-if="!needRegistration && selectedTab !== 'staff'"
+                v-if="!needRegistration"
               >
-                Confirmar re-stock
+                Confirmar reabastecimiento
               </button>
               <button
                 class="btn btn-primary text-secondary mt-3"
-                @click="saveSaleNewClient()"
+                @click="saveRestockNewSupplier()"
                 :disabled="isButtonDisabled2"
-                v-if="needRegistration && selectedTab !== 'staff'"
+                v-if="needRegistration"
               >
-                Confirmar re-stock2
+                Confirmar reabastecimiento
               </button>
             </div>
           </div>
@@ -425,6 +212,258 @@ watch(
     </div>
   </div>
 </template>
+
+<script setup lang="ts">
+import { onMounted, ref, inject, watch } from "vue";
+import api from "../../../config/http-client.gateway";
+import type { SupplierDto } from "../../../modules/supplier/dtos/SupplierDto";
+import type { ProductSold } from "../../../modules/product/dto/productSold.Dto";
+
+const Swal = inject("$swal");
+
+const isButtonDisabled = ref(true);
+const isButtonDisabled2 = ref(true);
+const items = ref<ProductSold[]>([]);
+const suppliers = ref<SupplierDto[]>([]);
+const selectedSupplier = ref<SupplierDto>({
+  id: 0,
+  contact: "",
+  peopleId: 0,
+  person: {
+    id: 0,
+    name: "",
+    surname: "",
+    lastname: "",
+  },
+});
+const selectedProducts = ref<ProductSold[]>([]);
+const total = ref();
+const needRegistration = ref(false);
+const selectedSupplierRef = ref(null);
+
+const getProducts = async () => {
+  try {
+    const response = await api.doPost("/pageable/product", { name: "" });
+    items.value = response.data.data.filter(
+      (obj: ProductSold) => obj.quantity !== 0
+    );
+    items.value.map((element: ProductSold, index) => {
+      element.index = index + 1;
+      element.quantitySold = 0;
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const getSuppliers = async () => {
+  try {
+    const response = await api.doGet("/pageable/supplier");
+    suppliers.value = response.data.data;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const onSelectedSupplier = (supplierId: string) => {
+  if (supplierId === "0" && selectedSupplier.value) {
+    selectedSupplier.value = {
+      id: 0,
+      contact: "",
+      peopleId: 0,
+      person: {
+        id: 0,
+        name: "",
+        surname: "",
+        lastname: "",
+      },
+    };
+  } else {
+    // const json = JSON.parse(JSON.stringify(suppliers.value))
+    selectedSupplier.value = suppliers.value.find(
+      (ele: SupplierDto) => ele.id === parseInt(supplierId)
+    )!;
+  }
+};
+
+const addProducts = (productId: number, quantitySold: number) => {
+  if (
+    !selectedProducts.value.find(
+      (element: ProductSold) => element.id === productId
+    )
+  ) {
+    selectedProducts.value.push({
+      ...items.value.find((element) => element.id === productId),
+      quantitySold: quantitySold,
+    } as ProductSold);
+  } else {
+    const charge: ProductSold = selectedProducts.value.find(
+      (element: ProductSold) => element.id === productId
+    )!;
+    charge!.quantitySold = quantitySold;
+    if (charge!.quantitySold == 0) {
+      selectedProducts.value = selectedProducts.value.filter(
+        (obj: ProductSold) => obj.id !== productId
+      );
+    }
+  }
+  total.value = calculateTotalCost();
+};
+
+const dataSupplierForm = ref({
+  contact: "",
+  person: {
+    name: "",
+    lastname: "",
+    surname: "",
+  },
+});
+
+const payloadRestock = {
+  totalAmount: 0.0,
+  staffId: 0,
+  supplierInfo: {},
+  charge: [] as Array<ProductSold>,
+  sendEmail: false, //en este caso no se usa
+};
+
+const calculateTotalCost = () => {
+  let totalToPay = selectedProducts.value.reduce(
+    (total, item: ProductSold) => total + item.uniPrice * item.quantitySold,
+    0
+  );
+  return totalToPay;
+};
+
+const saveRestock = () => {
+  try {
+    payloadRestock.totalAmount = total.value.toFixed(2);
+    payloadRestock.staffId = 1; //tomar de la sesion
+    payloadRestock.supplierInfo = selectedSupplier.value;
+    payloadRestock.charge = selectedProducts.value;
+    Swal.fire({
+      title: "¿Segura que desea realizar la acción?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Aceptar",
+      cancelButtonText: "Cancelar",
+      reverseButtons: true,
+    }).then(async (result: any) => {
+      if (result.isConfirmed) {
+        const res = await api.doPost("/restock", payloadRestock);
+        if (res.data.data) {
+          Swal.fire({
+            icon: "success",
+            title: "Acción realizada correctamente",
+            confirmButtonText: "Aceptar",
+          });
+        }
+        getSuppliers();
+        getProducts();
+        selectedSupplier.value = {
+          id: 0,
+          contact: "",
+          peopleId: 0,
+          person: {
+            id: 0,
+            name: "",
+            surname: "",
+            lastname: "",
+          },
+        };
+        selectedProducts.value = [];
+        selectedSupplierRef.value!.selectedIndex = 0;
+      }
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const saveRestockNewSupplier = async () => {
+  try {
+    payloadRestock.totalAmount = total.value.toFixed(2);
+    payloadRestock.staffId = 1;
+    payloadRestock.supplierInfo = dataSupplierForm.value;
+    payloadRestock.charge = selectedProducts.value;
+    Swal.fire({
+      title: "¿Segura que desea realizar la acción?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Aceptar",
+      cancelButtonText: "Cancelar",
+      reverseButtons: true,
+    }).then(async (result: any) => {
+      if (result.isConfirmed) {
+        const res = await api.doPost("/restock", payloadRestock);
+        if (res.data.data) {
+          Swal.fire({
+            icon: "success",
+            title: "Acción realizada correctamente",
+            confirmButtonText: "Aceptar",
+          });
+        }
+        getSuppliers();
+        getProducts();
+        dataSupplierForm.value = {
+          contact: "",
+          person: {
+            name: "",
+            lastname: "",
+            surname: "",
+          },
+        };
+        selectedProducts.value = [];
+      }
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+onMounted(getProducts);
+onMounted(getSuppliers);
+
+watch([() => selectedSupplier.value, () => selectedProducts.value], () => {
+  // Verifica si tanto selectedClient como selectedProducts tienen valores
+  isButtonDisabled.value =
+    !selectedSupplier.value || selectedProducts.value.length === 0;
+});
+watch([() => needRegistration.value], () => {
+  selectedSupplier.value = {
+    id: 0,
+    contact: "",
+    peopleId: 0,
+    person: {
+      id: 0,
+      name: "",
+      surname: "",
+      lastname: "",
+    },
+  };
+});
+watch(
+  [
+    () => dataSupplierForm.value.contact,
+    () => dataSupplierForm.value.person.name,
+    () => dataSupplierForm.value.person.lastname,
+    () => dataSupplierForm.value.person.surname,
+    () => selectedProducts.value,
+  ],
+  () => {
+    isButtonDisabled2.value =
+      !dataSupplierForm.value.contact ||
+      !dataSupplierForm.value.person.name ||
+      !dataSupplierForm.value.person.lastname ||
+      !dataSupplierForm.value.person.surname ||
+      selectedProducts.value.length === 0;
+  }
+);
+</script>
 
 <style scoped>
 .table-container {
