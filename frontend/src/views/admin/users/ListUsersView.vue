@@ -6,20 +6,20 @@
       <div class="">
         <label class="h4 fw-bold">Buscar Usuario</label>
         <div class="input-group">
-          <input type="text" class="form-control" placeholder="Buscar proveedor" aria-label="Buscar proveedor"
+          <input type="text" class="form-control" placeholder="Buscar usuario" aria-label="Buscar usuario"
                  v-model="search">
           <span class="input-group-text bg-primary text-secondary" readonly><i class="pi pi-search"></i></span>
         </div>
       </div>
       <div class="d-flex align-items-end justify-content-end mt-2 mt-md-0">
-        <button class="btn btn-primary text-secondary w-100" type="button" data-bs-toggle="modal"
-                data-bs-target="#addProviderModal">Agregar usuario
-        </button>
+        <!-- <button class="btn btn-primary text-secondary w-100" type="button" data-bs-toggle="modal"
+                        data-bs-target="#addUserModal">
+                  Agregar usuario
+                </button>-->
       </div>
     </div>
 
     <SkeletonCards :loading="loading"/>
-
     <div v-if="!loading && paginatedCards.length == 0">
       <NotFoundElements/>
     </div>
@@ -27,7 +27,8 @@
       <main class="row row-cols-2 row-cols-md-3 row-cols-lg-6 g-2 g-lg-3">
         <div v-for="card in paginatedCards " :key="(card.id as number)">
           <div class="col">
-            <div class="card itemList"  @click="setItemSelected(card)" data-bs-toggle="modal" data-bs-target="#updateProviderModal">
+            <div class="card itemList" @click="setItemSelected(card)" data-bs-toggle="modal"
+                 data-bs-target="#updateProviderModal">
               <div class="">
                 <div class="p-2 position-absolute top-0 end-0 m-0">
                   <i class="pi pi-ellipsis-v"></i>
@@ -35,13 +36,17 @@
               </div>
               <div class="card-body" style="font-size: 1.1rem; width: 100%;">
                 <div class="d-flex justify-content-center">
-                  <img src="@/assets/images/supplier.png" class="img-fluid px-4" alt="..." width="210">
+                  <img src="@/assets/images/user.png" class="img-fluid px-4" alt="..." width="210">
                 </div>
-                <p class="card-text fw-bold mt-1 m-0  text-uppercase">
-                  {{ card.person.name + ' ' + (card.person.lastname ? card.person.lastname : '') }}</p>
-                <hr>
-                <span class="card-text mt-2 fw-medium ">Contacto: </span>
-                <p class="card-text m-0 p-0 text-truncate">{{ card.contact }}</p>
+                <p class="card-text fw-bold mt-1 m-0  text-uppercase mb-1">{{ card.username }}</p>
+                <span class="card-text mt-2 fw-medium ">Role: </span>
+                <p class="card-text m-0 p-0 text-truncate"
+                   :class="card.rolesId == 1? 'text-primary fw-bold':'text-black'">{{ card.role.name }}</p>
+                <div class="d-flex justify-content-start mt-2">
+                  <span class="badge" :class="card.status ? 'bg-success' : 'bg-danger'">{{
+                      card.status ? "Activo" : "Inactivo"
+                    }}</span>
+                </div>
               </div>
             </div>
           </div>
@@ -65,8 +70,8 @@
         </ul>
       </nav>
     </footer>
-    <modal-add-user @getSuppliers="getSupplier" />
-    <modal-update-user v-if="itemSelected" :itemSelected="itemSelected" @reloadSupplier="getSupplier"/>
+<!--    <modal-add-user @getUsers="getUsers"/>-->
+        <modal-update-user v-if="itemSelected" :itemSelected="itemSelected" @reload-users="getUsers"/>
 
   </div>
 </template>
@@ -75,30 +80,37 @@
 //pagination with mock data
 import {computed, onMounted, ref} from "vue";
 import api from "@/config/http-client.gateway"
-import {type  SupplierDto} from "@/modules/supplier/dtos/SupplierDto";
 import SkeletonCards from "@/components/SkeletonCards.vue";
 import NotFoundElements from "@/components/NotFoundElements.vue";
 import ModalUpdateUser from "@/views/admin/users/ModalUpdateUser.vue";
 import ModalAddUser from "@/views/admin/users/ModalAddUser.vue";
+import {type UserDto} from "@/modules/user/dto/UserDto";
 
 //  general data
 const loading = ref(false);
-const itemSelected = ref<SupplierDto>({
+const itemSelected = ref<UserDto>({
   id: 0,
-  contact: '',
-  peopleId: 0,
-  person: {name: '', lastname: '', surname: ''}
+  username: '',
+  password: '',
+  status: false,
+  rolesId: 0,
+  staffId: 0,
+  role: {
+    id: 0,
+    name: '',
+    description: ''
+  }
 });
 
-const setItemSelected = (item: SupplierDto) => itemSelected.value = item
+const setItemSelected = (item: UserDto) => itemSelected.value = item
 
-onMounted(() => getSupplier())
+onMounted(() => getUsers())
 
-const getSupplier = async () => {
+const getUsers = async () => {
   try {
     loading.value = true;
-    const response = await api.doGet('pageable/supplier')
-    items.value = response.data.data as SupplierDto[];
+    const response = await api.doGet('pageable/user')
+    items.value = response.data.data as UserDto[];
     items.value = items.value.reverse()
   } catch (e) {
     console.log(e)
@@ -107,7 +119,7 @@ const getSupplier = async () => {
   }
 }
 
-const items = ref<SupplierDto[]>([]);
+const items = ref<UserDto[]>([]);
 
 const paginator = ref({
   currentPage: 1,
@@ -118,7 +130,7 @@ const search = ref('');
 
 const filterItem = computed(() => {
   return items.value.filter((item) => {
-    return item.contact.toLowerCase().includes(search.value.toLowerCase());
+    return item.username.toLowerCase().includes(search.value.toLowerCase());
   });
 });
 
@@ -129,7 +141,7 @@ const totalPages = computed(() => {
 const paginatedCards = computed(() => {
   const start = (paginator.value.currentPage - 1) * paginator.value.itemsPerPage;
   const end = start + paginator.value.itemsPerPage;
-  return filterItem.value.slice(start, end) as SupplierDto[];
+  return filterItem.value.slice(start, end) as UserDto[];
 });
 
 const goToPage = (page: number) => {

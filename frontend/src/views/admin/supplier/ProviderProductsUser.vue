@@ -37,9 +37,8 @@
                 <div class="d-flex justify-content-center">
                   <img src="@/assets/images/supplier.png" class="img-fluid px-4" alt="..." width="210">
                 </div>
-                <p class="card-text fw-bold mt-1 m-0  text-uppercase">
+                <p class="card-text fw-bold mt-1 m-0  text-uppercase mb-1">
                   {{ card.person.name + ' ' + (card.person.lastname ? card.person.lastname : '') }}</p>
-                <hr>
                 <span class="card-text mt-2 fw-medium ">Contacto: </span>
                 <p class="card-text m-0 p-0 text-truncate">{{ card.contact }}</p>
               </div>

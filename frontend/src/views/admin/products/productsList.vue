@@ -177,8 +177,7 @@ const changeStatus = (productId: number) => {
                     </p>
                     <p class="card-text m-0">
                       <span class="fw-semibold">Precio por unidad:</span> {{
-                        card.uniPrice |
-                            currencyFormat
+                        card.uniPrice | currencyFormat
                       }}
                     </p>
                     <div class="d-flex justify-content-start mt-2">
