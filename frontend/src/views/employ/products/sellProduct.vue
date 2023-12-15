@@ -1,13 +1,34 @@
 <script setup lang="ts">
 import { onMounted, ref, inject, watch } from "vue";
 import api from "../../../config/http-client.gateway";
+import "vue-loading-overlay/dist/css/index.css";
+import Loading from "vue-loading-overlay";
 import type { ProductSold } from "../../../modules/product/dto/productSold.Dto";
+import type { SelectedStaff } from "@/modules/satff/dtos/Staff.Dto";
+import type { SelectedClient } from "../../../modules/client/Client.Dto";
 
 const Swal = inject("$swal");
 
+const isButtonDisabled = ref(true);
+const isButtonDisabled2 = ref(true);
+const isButtonDisabled3 = ref(true);
+const items = ref<ProductSold[]>([]);
+const clients = ref<SelectedClient[]>([]);
+const staff = ref<SelectedStaff[]>([]);
+const selectedClient = ref<SelectedClient>({} as SelectedClient);
+const selectedEmploye = ref<SelectedStaff>({} as SelectedStaff);
+const selectedProducts = ref<ProductSold[]>([]);
+const subtotal = ref();
+const total = ref(0);
+const descount = ref(0);
+const needRegistration = ref(false);
+const needEmail = ref(false);
+const selectClientRef = ref(null);
+const isLoading = ref(false);
 
 const getProducts = async () => {
   try {
+    isLoading.value = true;
     const response = await api.doPost("/pageable/product", { name: "" });
     items.value = response.data.data.filter(
       (obj: ProductSold) => obj.quantity !== 0
@@ -16,6 +37,7 @@ const getProducts = async () => {
       element.index = index + 1;
       element.quantitySold = 0;
     });
+    isLoading.value = false;
   } catch (error) {
     console.log(error);
   }
@@ -23,8 +45,11 @@ const getProducts = async () => {
 
 const getClients = async () => {
   try {
+    isLoading.value = true;
     const response = await api.doGet("/clients");
     clients.value = response.data.data;
+    console.log("clientes de ventas", clients.value);
+    isLoading.value = false;
   } catch (error) {
     console.log(error);
   }
@@ -32,49 +57,55 @@ const getClients = async () => {
 
 const getStaff = async () => {
   try {
+    isLoading.value = true;
     const response = await api.doGet("/pageable/staff");
     staff.value = response.data.data;
+    isLoading.value = false;
   } catch (error) {
     console.log(error);
   }
 };
 
-onMounted(getProducts);
-onMounted(getClients);
-onMounted(getStaff);
+const calculatePercent = () => {
+  if (selectedClient.value.purchasesCount > 3 && subtotal.value > 100000.0) {
+    descount.value = 0.1;
+  } else if (
+    subtotal.value > 100000.0 ||
+    selectedClient.value.purchasesCount > 3
+  ) {
+    descount.value = 0.05;
+  } else {
+    descount.value = 0;
+  }
+};
 
 const onSelectedClient = (clientId: string) => {
   if (clientId === "0" && selectedClient.value) {
-    selectedClient.value = {};
+    selectedClient.value = {} as SelectedClient;
     console.log("valor del cliente cuando no es nada", selectedClient.value);
     descount.value = 0;
     total.value = calculateTotalCost();
   } else {
     // const json = JSON.parse(JSON.stringify(clients.value))
     selectedClient.value = clients.value.find(
-      (ele) => ele.id == parseInt(clientId)
-    );
-    if (selectedClient.value.purchasesCount > 3) {
-      descount.value = 0.05;
-    } else {
-      descount.value = 0;
-    }
+      (ele: SelectedClient) => ele.id == parseInt(clientId)
+    )!;
     total.value = calculateTotalCost();
-
+    calculatePercent();
     console.log(selectedClient.value);
   }
 };
 
-const onSelectedEmploye = (employeId: number) => {
-  if (employeId == "none" && selectedEmploye.value) {
-    selectedEmploye.value = {};
+const onSelectedEmploye = (employeId: string) => {
+  if (employeId === "0" && selectedEmploye.value) {
+    selectedEmploye.value = {} as SelectedStaff;
     descount.value = 0;
     total.value = calculateTotalCost();
   } else {
     // const json = JSON.parse(JSON.stringify(clients.value))
     selectedEmploye.value = staff.value.find(
-      (ele) => ele.id == parseInt(employeId)
-    );
+      (ele: SelectedStaff) => ele.id == parseInt(employeId)
+    )!;
     descount.value = 0.01;
     total.value = calculateTotalCost();
 
@@ -83,7 +114,7 @@ const onSelectedEmploye = (employeId: number) => {
 };
 const calculateDescount = () => {
   let totalToPay = selectedProducts.value.reduce(
-    (total, item) => total + item.uniPrice * item.quantitySold,
+    (total, item: ProductSold) => total + item.uniPrice * item.quantitySold,
     0
   );
   let totalDescount = totalToPay * descount.value;
@@ -91,13 +122,13 @@ const calculateDescount = () => {
 };
 const calculateSubtotalCost = () => {
   return selectedProducts.value.reduce(
-    (total, item) => total + item.uniPrice * item.quantitySold,
+    (total, item: ProductSold) => total + item.uniPrice * item.quantitySold,
     0
   );
 };
 const calculateTotalCost = () => {
   let totalToPay = selectedProducts.value.reduce(
-    (total, item) => total + item.uniPrice * item.quantitySold,
+    (total, item: ProductSold) => total + item.uniPrice * item.quantitySold,
     0
   );
   if (descount.value != 0) {
@@ -109,43 +140,30 @@ const calculateTotalCost = () => {
 const addProducts = (productId: number, quantitySold: number) => {
   // console.log("holaaaa",productId, quantitySold);
   if (
-    !selectedProducts.value.find((element) => element.id == parseInt(productId))
+    !selectedProducts.value.find(
+      (element: ProductSold) => element.id === productId
+    )
   ) {
     selectedProducts.value.push({
-      ...items.value.find((element) => element.id == parseInt(productId)),
+      ...items.value.find((element) => element.id === productId),
       quantitySold: quantitySold,
-    });
+    } as ProductSold);
   } else {
-    const charge = selectedProducts.value.find(
-      (element) => element.id == parseInt(productId)
-    );
+    const charge: ProductSold = selectedProducts.value.find(
+      (element: ProductSold) => element.id === productId
+    )!;
     charge.quantitySold = quantitySold;
     if (charge.quantitySold == 0) {
       selectedProducts.value = selectedProducts.value.filter(
-        (obj) => obj.id !== parseInt(productId)
+        (obj: ProductSold) => obj.id !== productId
       );
     }
   }
   //   console.log("ya funka?",selectedProducts.value);
   subtotal.value = calculateSubtotalCost();
   total.value = calculateTotalCost();
+  calculatePercent();
 };
-
-const isButtonDisabled = ref(true);
-const isButtonDisabled2 = ref(true);
-const isButtonDisabled3 = ref(true);
-const items = ref([]);
-const clients = ref([]);
-const staff = ref([]);
-const selectedClient = ref({});
-const selectedEmploye = ref({});
-const selectedProducts = ref([]);
-const subtotal = ref();
-const total = ref();
-const descount = ref(0);
-const needRegistration = ref(false);
-const needEmail = ref(false);
-const selectClientRef = ref(null);
 
 const dataUserForm = ref({
   phoneNumber: "",
@@ -160,14 +178,14 @@ const payloadForSale = {
   totalAmount: 0.0,
   staffId: 0,
   clientInfo: {},
-  charge: [],
+  charge: [] as Array<ProductSold>,
   sendEmail: true,
 };
 const payloadForSaleEmploye = {
   totalAmount: 0.0,
   staffId: 0,
   staffInfo: {},
-  charge: [],
+  charge: [] as Array<ProductSold>,
   sendEmail: true,
 };
 
@@ -189,6 +207,7 @@ const saveSale = async () => {
       reverseButtons: true,
     }).then(async (result: any) => {
       if (result.isConfirmed) {
+        isLoading.value = true;
         const res = await api.doPost("/sell", payloadForSale);
         console.log("respuerta de la vent ", res);
         if (res.data.data) {
@@ -200,11 +219,12 @@ const saveSale = async () => {
         }
         getClients();
         getProducts();
-        selectedClient.value = {};
+        selectedClient.value = {} as SelectedClient;
         selectedProducts.value = [];
         subtotal.value = null;
         total.value = null;
         selectClientRef.value.selectedIndex = 0;
+        isLoading.value = false;
       }
     });
   } catch (error) {
@@ -229,8 +249,10 @@ const saveSaleNewClient = async () => {
       confirmButtonText: "Aceptar",
       cancelButtonText: "Cancelar",
       reverseButtons: true,
-    }).then(async (result) => {
+    }).then(async (result: any) => {
       if (result.isConfirmed) {
+        isLoading.value = true;
+
         const res = await api.doPost("/sell", payloadForSale);
         console.log("respuerta de la vent ", res);
         if (res.data.data) {
@@ -254,6 +276,7 @@ const saveSaleNewClient = async () => {
         selectedProducts.value = [];
         subtotal.value = null;
         total.value = null;
+        isLoading.value = false;
       }
     });
   } catch (error) {
@@ -277,8 +300,9 @@ const saveSaleStaff = async () => {
       confirmButtonText: "Aceptar",
       cancelButtonText: "Cancelar",
       reverseButtons: true,
-    }).then(async (result) => {
+    }).then(async (result: any) => {
       if (result.isConfirmed) {
+        isLoading.value = true;
         const res = await api.doPost("/sell", payloadForSaleEmploye);
         console.log("respuerta de la vent ", res);
         if (res.data.data) {
@@ -290,17 +314,44 @@ const saveSaleStaff = async () => {
         }
         getClients();
         getProducts();
-        selectedClient.value = {};
+        selectedClient.value = {} as SelectedClient;
         selectedProducts.value = [];
         subtotal.value = null;
         total.value = null;
         selectClientRef.value.selectedIndex = 0;
+        isLoading.value = false;
       }
     });
   } catch (error) {
     console.log(error);
   }
 };
+
+const selectedTab = ref("client");
+const handleTabClient = () => {
+  selectedTab.value = "client";
+  selectedClient.value = {} as SelectedClient;
+  selectedEmploye.value = {} as SelectedStaff;
+  descount.value = 0;
+  total.value = calculateTotalCost();
+  calculatePercent();
+};
+const handleTabStaff = () => {
+  selectedTab.value = "staff";
+  selectedClient.value = {} as SelectedClient;
+  selectedEmploye.value = {} as SelectedStaff;
+  descount.value = 0;
+  total.value = calculateTotalCost();
+  calculatePercent();
+};
+
+onMounted(() => {
+  // isLoading.value = true;
+  getProducts();
+  getClients();
+  getStaff();
+  // isLoading.value = false;
+});
 
 watch([() => selectedClient.value, () => selectedProducts.value], () => {
   // Verifica si tanto selectedClient como selectedProducts tienen valores
@@ -313,7 +364,8 @@ watch([() => selectedEmploye.value, () => selectedProducts.value], () => {
     !selectedEmploye.value || selectedProducts.value.length === 0;
 });
 watch([() => needRegistration.value], () => {
-  selectedClient.value = {};
+  selectedClient.value = {} as SelectedClient;
+  calculatePercent();
 });
 watch(
   [
@@ -334,32 +386,20 @@ watch(
       selectedProducts.value.length === 0;
   }
 );
-
-const selectedTab = ref("client");
-const handleTabClient = () => {
-  selectedTab.value = "client";
-  selectedClient.value = {};
-  selectedEmploye.value = {};
-  descount.value = 0;
-  total.value = calculateTotalCost();
-};
-const handleTabStaff = () => {
-  selectedTab.value = "staff";
-  selectedClient.value = {};
-  selectedEmploye.value = {};
-  descount.value = 0;
-  total.value = calculateTotalCost();
-};
 </script>
 
 <template>
   <div>
-    <h1 class="h1 text-primary fw-bold">Ventas</h1>
+    <loading v-model:active="isLoading" :can-cancel="true" />
+    <h1 class="h1 text-primary fw-bold my-3">Ventas</h1>
   </div>
   <div class="container-fluid">
     <div class="row">
       <div class="col-lg-7 shadow">
-        <div class="table-container">
+        <div
+          class="table-container"
+          style="max-height: 700px; overflow-y: auto"
+        >
           <table class="table">
             <thead class="sticky-top">
               <tr>
@@ -370,7 +410,7 @@ const handleTabStaff = () => {
             </thead>
             <tbody>
               <tr v-for="product in items" :key="product.id">
-                <th scope="row">1</th>
+                <th scope="row">{{ product.index }}</th>
                 <td>
                   <h5>{{ product.name }}</h5>
                   <span class="badge bg-primary">{{
@@ -525,14 +565,14 @@ const handleTabStaff = () => {
                 @input="onSelectedClient($event.target.value)"
                 ref="selectClientRef"
               >
-                <option selected value=0 key=0 disabled>
+                <option selected value="0" key="0" disabled>
                   Selecciona un cliente
                 </option>
 
                 <option
                   v-for="client in clients"
                   :value="client.id"
-                  :key="client.name"
+                  :key="client.person.name"
                 >
                   <span class="font-weight-bold">Nombre:</span>
                   {{
@@ -540,23 +580,38 @@ const handleTabStaff = () => {
                     " " +
                     client.person.lastname +
                     " " +
-                    client.person.surname
+                    `${
+                      client.person.lastname !== null
+                        ? client.person.lastname
+                        : ""
+                    }`
                   }}
                 </option>
               </select>
+              <div class="mt-3">
+                <span
+                  class="badge bg-primary"
+                  v-if="selectedClient.purchasesCount > 3"
+                  >Cliente frecuente</span
+                >
+              </div>
               <div class="mt-2">
                 <strong> Nombre:</strong>
                 {{ selectedClient.person ? selectedClient.person.name : "" }}
               </div>
               <div>
                 <strong>Apellido paterno:</strong>
-                {{
-                  selectedClient.person ? selectedClient.person.lastname : ""
-                }}
+                {{ selectedClient.person ? selectedClient.person.surname : "" }}
               </div>
               <div>
                 <strong>Apellido materno:</strong>
-                {{ selectedClient.person ? selectedClient.person.surname : "" }}
+                {{
+                  selectedClient.person
+                    ? selectedClient.person.lastname
+                      ? selectedClient.person.lastname
+                      : ""
+                    : ""
+                }}
               </div>
               <div>
                 <strong>Correo:</strong>
@@ -582,7 +637,7 @@ const handleTabStaff = () => {
                 @input="onSelectedEmploye($event.target.value)"
                 ref="selectClientRef"
               >
-                <option selected value=0 key=0 disabled>
+                <option selected value="0" key="0" disabled>
                   Selecciona un empleado
                 </option>
 
@@ -595,9 +650,13 @@ const handleTabStaff = () => {
                   {{
                     employe.person.name +
                     " " +
-                    employe.person.lastname +
+                    employe.person.surname +
                     " " +
-                    employe.person.surname
+                    `${
+                      employe.person.lastname !== null
+                        ? employe.person.lastname
+                        : ""
+                    }`
                   }}
                 </option>
               </select>
@@ -608,13 +667,17 @@ const handleTabStaff = () => {
               <div>
                 <strong>Apellido paterno:</strong>
                 {{
-                  selectedEmploye.person ? selectedEmploye.person.lastname : ""
+                  selectedEmploye.person ? selectedEmploye.person.surname : ""
                 }}
               </div>
               <div>
                 <strong>Apellido materno:</strong>
                 {{
-                  selectedEmploye.person ? selectedEmploye.person.surname : ""
+                  selectedEmploye.person
+                    ? selectedEmploye.person.lastname
+                      ? selectedEmploye.person.lastname
+                      : ""
+                    : ""
                 }}
               </div>
               <div>
@@ -628,6 +691,19 @@ const handleTabStaff = () => {
         <div class="card ms-5 mt-2 shadow">
           <div class="card-body">
             <h5 class="card-title mb-4">Resumen de compra</h5>
+            <div>
+              <span
+                class="badge bg-primary me-2"
+                v-if="selectedClient.purchasesCount > 3"
+                >5% de descuento</span
+              >
+              <span class="badge bg-primary me-2" v-if="subtotal > 100000.0"
+                >5% de descuento</span
+              >
+              <span class="badge bg-primary" v-if="subtotal"
+                >Descuento total: {{ descount * 100 }}%</span
+              >
+            </div>
             <div v-for="sProduct in selectedProducts" :key="sProduct.id">
               <strong>Producto: </strong>
               {{ sProduct ? sProduct.name : "" }}
