@@ -393,7 +393,10 @@ const saveRestock = () => {
         selectedSupplierRef.value!.selectedIndex = 0;
         isLoading.value = false;
       }
-    });
+    }).catch(() => {
+      isLoading.value = false
+    } )
+
   } catch (error) {
     isLoading.value = false;
     console.log(error);

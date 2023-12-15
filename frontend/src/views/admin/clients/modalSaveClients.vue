@@ -121,7 +121,11 @@ const saveClient = async () => {
     });
   } catch (error) {
     isLoading.value = false
-    console.log(error);
+    Swal.fire({
+      icon: "error",
+      title: "Error al realizar la acción",
+      confirmButtonText: "Aceptar",
+    });
   }
 };
 

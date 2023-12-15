@@ -132,6 +132,7 @@ let onSubmitted = handleSubmit(async (values) => {
     } else SwalCustom.close()
   } catch (error) {
     SwalCustom.close()
+    SwalCustom.error('Error al actualizar la categoria', 'Intente de nuevo')
 
   }
 })

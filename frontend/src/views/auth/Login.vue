@@ -72,13 +72,10 @@ let {value: user, errorMessage: uError, handleBlur: eBlur, meta: uMeta} = useFie
 let {value: password, errorMessage: pError, handleBlur: pBlur, meta: pMeta} = useField("password");
 
 let onSubmit = handleSubmit(async values => {
-  Swal.loading('Comprobando credenciales', 'Espere un momento por favor')
-  const payload = {
-    username: values.user,
-    password: values.password
-  };
+  const payload = {username: values.user, password: values.password};
 
   try {
+    Swal.loading('Comprobando credenciales', 'Espere un momento por favor')
     const response = await api.doPost('/auth/login', payload)
     Swal.close()
     if (response.status === 200) {
@@ -95,10 +92,9 @@ let onSubmit = handleSubmit(async values => {
     console.log(response);
   } catch (e) {
     Swal.close()
-    if (e.status === 404) Swal.errorTime('Oops...', 'Usuario o contraseña incorrectos')
 
-    if (e.status === 403) Swal.errorTime('Oops...', 'Usuario deshabilitado')
-
+    if (e.status === 403) Swal.errorTime('Oops...', 'Usuario o contraseña incorrectos')
+    if (e.status === 400) Swal.errorTime('Oops...', 'Usuario deshabilitado')
     if (e.status === 500) Swal.errorTime('Oops...', 'Error en el servidor')
 
     console.log(e);
@@ -117,9 +113,9 @@ const sentTo = async () => {
   if (token === null) await router.push('/');
   const role = localStorage.getItem('role')
   console.log(role)
-  if (role === 'Admin') {
+  if (role === 'admin') {
     await router.push({name: 'homeAdmin'})
-  } else if (role === 'Empleado') {
+  } else if (role === 'empleado') {
     await router.push({name: 'homeEmploy'})
   } else {
     await router.push('/');

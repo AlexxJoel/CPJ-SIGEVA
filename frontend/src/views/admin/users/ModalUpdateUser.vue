@@ -1,7 +1,7 @@
 <template>
   <div class="modal fade" id="updateProviderModal" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog">
-      <form >
+      <form>
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title" id="exampleModalLabel">Detalles usuario</h5>
@@ -26,7 +26,7 @@
 
             <div class="row mt-2">
               <div class="col">
-                <label  class="form-label">Estado</label>
+                <label class="form-label">Estado</label>
                 <input type="text" class="form-control" id="productQuantity"
                        v-model="statusDescription" @blur="sBlur" disabled/>
                 <div v-if="!sMeta.valid" class="invalid-feedback">{{ sError }}</div>
@@ -36,15 +36,17 @@
           </div>
           <div class="modal-footer">
 
-             <button v-if='props.itemSelected?.rolesId != 1' type="button"  class="btn block me-auto"
-                     :class="(!status?'btn-success':'btn-danger')"
-                     @click="changeStatus(!status, props.itemSelected.id)"
-             >
-               {{!status?'Activar':'Desactivar'}}
-             </button>
+            <button v-if='props.itemSelected?.rolesId != 1' type="button" class="btn block me-auto"
+                    :class="(!status?'btn-success':'btn-danger')"
+                    @click="changeStatus(!status, props.itemSelected.id)"
+            >
+              {{ !status ? 'Activar' : 'Desactivar' }}
+            </button>
             <div>
-              <button type="button" id="closeModal" class="btn btn-outline-danger me-2" data-bs-dismiss="modal" @click="hideModal">Cerrar</button>
-<!--              <button type="submit" class="btn btn-primary text-secondary" :disabled="isDisabled">Guardar</button>-->
+              <button type="button" id="closeModal" class="btn btn-outline-danger me-2" data-bs-dismiss="modal"
+                      @click="hideModal">Cerrar
+              </button>
+              <!--              <button type="submit" class="btn btn-primary text-secondary" :disabled="isDisabled">Guardar</button>-->
             </div>
           </div>
         </div>
@@ -74,14 +76,14 @@ const props = defineProps({
 
 //define emits
 const emits = defineEmits([
-   'reloadUsers'
+  'reloadUsers'
 ])
 
 const statusDescription = computed(() => props.itemSelected?.status ? 'Activo' : 'Inactivo')
 
 watch(() => props.itemSelected, (newValue: UserDto) => {
   if (newValue) {
-   username.value = newValue.username
+    username.value = newValue.username
     role.value = newValue.role.name
     status.value = newValue.status
   }
@@ -95,7 +97,7 @@ const schema = yup.object({
 });
 
 // Use the schema in your component
-let {handleSubmit , resetForm} = useForm({
+let {handleSubmit, resetForm} = useForm({
   validationSchema: schema,
   initialValues: {
     username: '',
@@ -109,9 +111,9 @@ let {value: role, errorMessage: rError, handleBlur: rBlur, meta: rMeta} = useFie
 let {value: status, errorMessage: sError, handleBlur: sBlur, meta: sMeta} = useField("status");
 
 const isDisabled = computed(() => !uMeta || !rMeta || !sMeta)
-let changeStatus = async (status:boolean, id:number) => {
+let changeStatus = async (status: boolean, id: number) => {
   try {
-    const respQuestion = await SwalCustom.question('¿Segura que desea realizar la acción?', `Se ${status? 'activar': 'desactivar' }a el usuario`, 'warning', `${status? 'Activar': 'Desactivar' }`)
+    const respQuestion = await SwalCustom.question('¿Segura que desea realizar la acción?', `Se ${status ? 'activar' : 'desactivar'}a el usuario`, 'warning', `${status ? 'Activar' : 'Desactivar'}`)
     if (!respQuestion.isConfirmed) return;
     SwalCustom.loading('Actualizando el usuario', 'Espere un momento por favor')
 
@@ -127,16 +129,13 @@ let changeStatus = async (status:boolean, id:number) => {
         emits('reloadUsers');
 
       }
-    }else{
+    } else {
       SwalCustom.close()
     }
-  }catch (e) {
-    await  SwalCustom.error('Error al actualizar el proveedor', 'Intente de nuevo')
+  } catch (e) {
+    SwalCustom.close()
+    await SwalCustom.error('Error al actualizar el proveedor', 'Intente de nuevo')
     console.log(e)
-  }finally {
-    setTimeout(() => {
-      SwalCustom.close()
-    }, 1000)
   }
 }
 const hideModal = () => {

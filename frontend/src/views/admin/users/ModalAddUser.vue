@@ -106,8 +106,8 @@ let onSubmit = handleSubmit(async values => {
 
 
   } catch (error) {
-    console.log(error);
-  } finally {
+    SwalCustom.close()
+    SwalCustom.error('Error al agregar proveedor', 'Intente de nuevo');
   }
 })
 

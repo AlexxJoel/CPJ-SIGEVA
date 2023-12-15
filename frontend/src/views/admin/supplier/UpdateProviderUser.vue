@@ -150,7 +150,7 @@ let onSubmit = handleSubmit(async values => {
 
   } catch (error) {
     SwalCustom.close()
-
+    SwalCustom.error('Error al actualizar proveedor', 'Intente de nuevo');
   }
 })
 

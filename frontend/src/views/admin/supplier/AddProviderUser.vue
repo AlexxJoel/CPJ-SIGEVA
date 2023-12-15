@@ -98,7 +98,7 @@ const isDisabled = computed(() => !cMeta.valid || !nMeta.valid || !sMeta.valid |
 let onSubmit = handleSubmit(async values => {
 
   try {
-    const respQuestion = await SwalCustom.question('¿Segura que desea realizar la acción?', 'Se agregará un nuevo proveedor', 'question', 'Guardar' )
+    const respQuestion = await SwalCustom.question('¿Segura que desea realizar la acción?', 'Se agregará un nuevo proveedor', 'question', 'Guardar')
     if (!respQuestion.isConfirmed) return;
     SwalCustom.loading('Agregando proveedor', 'Espere un momento por favor')
     const res = await api.doPost("/supplier", {
@@ -124,7 +124,8 @@ let onSubmit = handleSubmit(async values => {
 
 
   } catch (error) {
-    console.log(error);
+    SwalCustom.close()
+    SwalCustom.error('Error al agregar el proveedor', 'Intente de nuevo')
   }
 })
 
@@ -134,8 +135,6 @@ const hideModal = () => {
     closeButton.click();
   }
 }
-
-
 
 
 </script>

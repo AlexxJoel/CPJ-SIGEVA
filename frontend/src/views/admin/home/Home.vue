@@ -20,8 +20,8 @@
             </div>
             <div class="card-text text-primary" v-if="loadingAmountSold">Calculando...</div>
             <div v-else>
-              <div class="card-text text-primary">Venta: {{ amoutEarns ? `$${amoutEarns} pesos` : 'Error' }}</div>
-              <div class="card-text text-primary">Compra: {{ amountExpenses ? `$${amountExpenses} pesos` : 'Error' }}</div>
+              <div class="card-text text-primary">Venta: {{ amoutEarns ? `$${amoutEarns} ` : '0' }} pesos</div>
+              <div class="card-text text-primary">Compra: {{ amountExpenses ? `$${amountExpenses} ` : '0' }} pesos</div>
             </div>
             <div class="card-text">
               <button data-bs-target="#amountEarnModal" type="button" data-bs-toggle="modal"

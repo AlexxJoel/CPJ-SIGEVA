@@ -126,7 +126,11 @@ const saveCategory = async () => {
       }
     });
   } catch (error) {
-    console.log(error);
+    Swal.fire({
+      icon: "error",
+      title: "Error al realizar la acción",
+      confirmButtonText: "Aceptar",
+    });
   }
 };
 
