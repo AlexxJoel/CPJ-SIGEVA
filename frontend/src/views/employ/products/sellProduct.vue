@@ -39,6 +39,7 @@ const getProducts = async () => {
     });
     isLoading.value = false;
   } catch (error) {
+    isLoading.value = false;
     console.log(error);
   }
 };
@@ -51,6 +52,7 @@ const getClients = async () => {
     console.log("clientes de ventas", clients.value);
     isLoading.value = false;
   } catch (error) {
+    isLoading.value = false;
     console.log(error);
   }
 };
@@ -62,6 +64,7 @@ const getStaff = async () => {
     staff.value = response.data.data;
     isLoading.value = false;
   } catch (error) {
+    isLoading.value = false;
     console.log(error);
   }
 };
@@ -228,6 +231,7 @@ const saveSale = async () => {
       }
     });
   } catch (error) {
+    isLoading.value = false;
     console.log(error);
   }
 };
@@ -280,6 +284,7 @@ const saveSaleNewClient = async () => {
       }
     });
   } catch (error) {
+    isLoading.value = false;
     console.log(error);
   }
 };
@@ -323,6 +328,7 @@ const saveSaleStaff = async () => {
       }
     });
   } catch (error) {
+    isLoading.value = false;
     console.log(error);
   }
 };
