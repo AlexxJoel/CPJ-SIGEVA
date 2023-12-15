@@ -1,12 +1,13 @@
 import { Router } from "express";
 import { changeStatus, getAll, getOne, save, update } from "./category.controller";
+import {checkAuth} from "../../config/jwt";
 
 const router = Router();
 
-router.get('/pageable/category', [], getAll);
-router.get('/category/:id', [], getOne);
-router.post('/category', [], save);
-router.put('/category', [], update);
-router.delete('/category/:id', [], changeStatus);
+router.get('/pageable/category', checkAuth([]),[], getAll);
+router.get('/category/:id', checkAuth([]),[], getOne);
+router.post('/category',checkAuth([]), [], save);
+router.put('/category',checkAuth([]), [], update);
+router.delete('/category/:id',checkAuth([]), [], changeStatus);
 
 export default router;

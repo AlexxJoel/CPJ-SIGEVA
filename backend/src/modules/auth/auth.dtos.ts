@@ -11,4 +11,5 @@ export type AuthUserDto =  {
     email: string;
     isManager: boolean;
     status: boolean;
+    staffId: number;
 }
