@@ -53,7 +53,7 @@ const router = createRouter({
                 {
                     path: 'products',
                     name: 'products',
-                    component: () => import('../views/admin/products/productsList.vue'),
+                    component: () => import('../views/admin/products/ListProductView.vue'),
                 },
                 {
                     path: ":pathMatch(.*)*",
@@ -93,7 +93,7 @@ const router = createRouter({
                 {
                     path: 'products',
                     name: 'productsEmploy',
-                    component: () => import('../views/admin/products/productsList.vue'),
+                    component: () => import('../views/admin/products/ListProductView.vue'),
                 },
                 {
                     path: ":pathMatch(.*)*",

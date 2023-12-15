@@ -140,8 +140,8 @@ const changeStatus = (productId: number) => {
                 <!-- Menú de opciones -->
                 <ul class="dropdown-menu">
                   <li>
-                    <a class="dropdown-item" data-bs-target="#ModalUpdateCategory"
-                       data-bs-toggle="modal" @click="editProduct(card)">
+                    <a class="dropdown-item"
+                        @click="editProduct(card)">
                       Editar
                     </a>
                   </li>
@@ -154,7 +154,7 @@ const changeStatus = (productId: number) => {
                 </ul>
               </div>
 
-              <div class="card-body" style="font-size: 1.1rem; width: 100%;">
+              <div class="card-body" style="font-size: 1.1rem; width: 100%;" @click="editProduct(card)" data-bs-target="#ModalUpdateCategory" data-bs-toggle="modal" >
                 <div class="d-flex justify-content-center">
                   <img src="@/assets/images/cristal.png" class="img-fluid px-4" alt="..." width="210">
                 </div>
@@ -186,8 +186,6 @@ const changeStatus = (productId: number) => {
                   </div>
                 </div>
               </div>
-
-
             </div>
           </div>
         </div>
@@ -213,7 +211,7 @@ const changeStatus = (productId: number) => {
       </nav>
     </footer>
     <ModalSaveProduct @reloadProduct="reloadProduct" :onSelectedId="onSelectedId"/>
-    <ModalUpdateProduct @reloadProduct="reloadProduct"/>
+<!--    <ModalUpdateProduct @reloadProduct="reloadProduct"/>-->
   </div>
 </template>
 

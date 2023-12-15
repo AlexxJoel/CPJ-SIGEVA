@@ -64,6 +64,8 @@
         </ul>
       </nav>
     </footer>
+
+
     <AddProviderUser @getSuppliers="getSupplier" />
     <UpdateProviderUser v-if="itemSelected" :itemSelected="itemSelected" @reloadSupplier="getSupplier"/>
 
