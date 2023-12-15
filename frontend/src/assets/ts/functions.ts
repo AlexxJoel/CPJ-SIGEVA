@@ -6,3 +6,11 @@ export const formatDate = (date: Date) => {
         year = '' + d.getFullYear()
     return [day, month, year].join('/');
 }
+
+
+export const hideModal = () => {
+    const closeButton: HTMLElement | null = document.querySelector('[data-bs-dismiss="modal"]');
+    if (closeButton) {
+        closeButton.click();
+    }
+}

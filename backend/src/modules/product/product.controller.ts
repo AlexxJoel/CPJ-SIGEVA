@@ -94,10 +94,10 @@ const update = async (req: Request, res: Response) => {
         if (!(await existsById(payload.id))) throw Error(Errors.NOT_FOUND);
 
         if (!payload.name ||
-            !payload.quantity ||
             !payload.unitPrice ||
             !payload.categoriesId) throw Error(Errors.MISSING_FIELDS)
 
+        if (!payload.quantity) payload.quantity = 0;
         payload.name = payload.name.trim();
         if (payload.name.length < 7 || payload.name.length > 26) throw Error(Errors.INVALID_FIELDS);
         

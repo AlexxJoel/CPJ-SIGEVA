@@ -1,148 +1,183 @@
 <template>
-    <div class="modal fade" id="ModalSaveProduct" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true"
-        ref="saveProductModal">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">
-                        Registrar producto
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form>
-                        <label for="productName" class="form-label">Nombre</label>
-                        <input type="text" class="form-control" id="productName" placeholder="Anillos de oro"
-                            v-model="product.name" />
-                        <label for="productDescription" class="form-label mt-3">Descripción</label>
-                        <textarea class="form-control" id="productDescription" rows="3"
-                            v-model="product.description"></textarea>
+  <div class="modal fade" id="ModalSaveProduct" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <form @submit="onSubmit">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Registrar Producto</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"
+                    @click="resetForm()"></button>
+          </div>
+          <div class="modal-body">
 
-                        <div class="row">
-                            <div class="col">
-                                <label for="productQuantity" class="form-label">Cantidad</label>
-                                <input type="number" class="form-control" id="productQuantity" placeholder="10"
-                                    v-model="product.quantity" />
-                            </div>
-                            <div class="col">
-                                <label for="productUnitPrice" class="form-label">Precio por unidad</label>
-                                <input type="number" class="form-control" id="productUnitPrice" placeholder="$15,000"
-                                    v-model="product.unitPrice" />
-                            </div>
-                            <div class="col">
-                                <label for="productCategory" class="form-label">Categoría</label>
-                                <select class="form-control" id="productCategory" v-model="product.categoriesId">
-                                    <option v-for="category in items" :key="category.id" :value="category.id">{{
-                                        category.name }}</option>
-                                </select>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button style="visibility: hidden" type="button" class="btn btn-secondary" data-bs-dismiss="modal"
-                        id="closeSaveProduct" @click="$emit('reloadProduc')">
-                        cerrar
-                    </button>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                        Cancelar
-                    </button>
-                    <button type="button" class="btn btn-primary" @click="saveProduct" :disabled="!areAllFieldsFilled()">
-                        Guardar
-                    </button>
-                </div>
+            <div class="row">
+              <div class="col">
+                <label for="productUnitPrice" class="form-label">Nombre</label>
+                <input type="text" class="form-control" id="productUnitPrice" placeholder="Nombre(s)"
+                       :class="{ 'is-invalid': nMeta.touched && !nMeta.valid, 'is-valid': nMeta.dirty && nMeta.valid }"
+                       v-model="name" @blur="nBlur"/>
+                <div v-if="!nMeta.valid" class="invalid-feedback">{{ nError }}</div>
+              </div>
             </div>
+
+            <div class="row">
+              <div class="col">
+                <label for="productQuantity" class="form-label">Descripción</label>
+                <input type="text" class="form-control" id="productQuantity" placeholder="descripción"
+                       :class="{ 'is-invalid': dMeta.touched && !dMeta.valid, 'is-valid': dMeta.touched && dMeta.valid }"
+                       v-model="description" @blur="dBlur"/>
+                <div v-if="!dMeta.valid" class="invalid-feedback">{{ dError }}</div>
+              </div>
+            </div>
+
+
+            <div class="row">
+              <div class="col">
+                <label for="productUnitPrice" class="form-label">Cantidas</label>
+                <input type="number" class="form-control" id="productUnitPrice" placeholder="$15,000" step="any"
+                       :class="{ 'is-invalid': qMeta.touched && !qMeta.valid, 'is-valid': qMeta.touched && qMeta.valid }"
+                       v-model="quantity" @blur="qBlur"/>
+                <div v-if="!qMeta.valid" class="invalid-feedback">{{ qError }}</div>
+              </div>
+              <div class="col">
+                <label for="productUnitPrice" class="form-label">Precio por unidad</label>
+                <input type="number" class="form-control" id="productUnitPrice" placeholder="$15,000" step="any"
+                       :class="{ 'is-invalid': pMeta.touched && !pMeta.valid, 'is-valid': pMeta.touched && pMeta.valid }"
+                       v-model="price" @blur="pBlur"/>
+                <div v-if="!pMeta.valid" class="invalid-feedback">{{ pError }}</div>
+              </div>
+              <div class="col">
+                <label for="productCategory" class="form-label">Categoría</label>
+                <select class="form-control" id="productCategory" v-model="categoriesId"
+                        :class="{ 'is-invalid': cMeta.touched && !cMeta.valid, 'is-valid':  cMeta.touched && cMeta.valid }"
+                        @blur="cBlur">
+                  <option value="0" disabled selected>Seleccione una categoría
+                  </option
+                  >
+                  <option v-for="category in items" :key="category.id" :value="category.id">{{
+                      category.name
+                    }}
+                  </option>
+                </select>
+                <div v-if="!cMeta.valid" class="invalid-feedback">{{ cError }}</div>
+
+              </div>
+            </div>
+
+
+          </div>
+          <div class="modal-footer">
+              <button type="button" id="closeModal" class="btn btn-danger me-2" data-bs-dismiss="modal">
+                Cerrar
+              </button>
+              <button type="submit" class="btn btn-primary text-secondary" :disabled="isDisabled">
+                Guardar
+              </button>
+          </div>
         </div>
+      </form>
     </div>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, inject } from "vue";
+import { getCurrentInstance, computed, onMounted, ref} from "vue";
+import * as yup from "yup";
+import {useField, useForm} from "vee-validate";
 import api from "../../../config/http-client.gateway";
-const Swal = inject("$swal");
+import {ProductController} from "@/modules/products/product.controller";
 
-const product = ref({
-    name: "",
-    description: "",
-    quantity: 0,
-    unitPrice: 0,
-    categoriesId: 3
+const app = getCurrentInstance();
+const SwalCustom = app?.appContext.config.globalProperties.$swalCustom;
+
+//define emits
+const emits = defineEmits(['reloadProducts'])
+
+const items = ref([])
+
+// Define validation schema
+const schema = yup.object({
+  name: yup.string().required().min(7, 'El nombre debe tener al menos 7 caracteres').max(26, 'El nombre debe tener máximo 26 caracteres'),
+  description: yup.string().nullable(),
+  quantity: yup.number().required().min(1, 'La cantidad debe ser mayor a 0').typeError('La cantidad debe ser un número'),
+  price: yup.number().required().typeError('El precio debe ser un número').min(1, 'El precio debe ser mayor a 0'),
+  categoriesId: yup.number().required().min(1, 'Seleccione una categoría'),
+  status: yup.boolean()
 });
-let showModal = ref(true);
 
-const hideModal = () => {
-    showModal.value = false;
-};
-const areAllFieldsFilled = () => {
-  return (
-    product.value.name &&
-    product.value.description &&
-    product.value.quantity &&
-    product.value.unitPrice
-  );
-};
-const saveProduct = async () => {
-    try {
-        Swal.fire({
-            title: "¿Segura que desea realizar la acción?",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Aceptar",
-            cancelButtonText: "Cancelar",
-            reverseButtons: true,
-        }).then(async (result) => {
-            if (result.isConfirmed) {
-                const res = await api.doPost("/product", {
-                    name: product.value.name,
-                    description: product.value.description,
-                    quantity: product.value.quantity,
-                    unitPrice: product.value.unitPrice,
-                    categoriesId: product.value.categoriesId,
-                });
-                if (res.data.data) {
-                    Swal.fire({
-                        icon: "success",
-                        title: "Acción realizada correctamente",
-                        confirmButtonText: "Aceptar",
-                    });
-                }
-                //se obtiene el boton oculto por DOM
-                const btnCloseModal = document.getElementById("closeSaveProduct");
-                //se verifica que se encontro el elemento
-                if (btnCloseModal) {
-                    //cerramos el modal con el boton oculto
-                    btnCloseModal.click();
-                    //se limpia la data
-                    product.value.name = "";
-                    product.value.description = "";
-                    product.value.quantity = 0;
-                    product.value.unitPrice = 0;
-                    product.value.categoriesId = 0;
-                }
-            }
-        });
-    } catch (error) {
-        console.log(error);
+// Use the schema in your component
+let {handleSubmit, resetForm} = useForm({
+  validationSchema: schema,
+  initialValues: {
+    name: '',
+    description: '',
+    quantity: 0,
+    price: 0,
+    categoriesId: 0,
+    status: false
+  }
+});
+
+let {value: name, errorMessage: nError, handleBlur: nBlur, meta: nMeta} = useField("name");
+let {value: description, errorMessage: dError, handleBlur: dBlur, meta: dMeta} = useField("description");
+let {value: quantity, errorMessage: qError, handleBlur: qBlur, meta: qMeta} = useField("quantity");
+let {value: price, errorMessage: pError, handleBlur: pBlur, meta: pMeta} = useField("price");
+let {value: categoriesId, errorMessage: cError, handleBlur: cBlur, meta: cMeta} = useField("categoriesId");
+let {value: status, errorMessage: sError, handleBlur: sBlur, meta: sMeta} = useField("status");
+
+
+const isDisabled = computed(() => !nMeta.valid || !dMeta.valid || !qMeta.valid || !pMeta.valid || !cMeta.valid)
+
+let onSubmit = handleSubmit(async values => {
+  try {
+    const respQuestion = await SwalCustom.question('¿Segura que desea realizar la acción?', 'Se registrará el producto', 'question', 'Agregar')
+    if (!respQuestion.isConfirmed) return;
+    SwalCustom.loading('Registrando producto', 'Espere un momento por favor')
+
+    const payload = {
+      name: name.value,
+      description: description.value,
+      quantity: quantity.value,
+      unitPrice: price.value,
+      categoriesId: categoriesId.value,
     }
-}
 
-const items = ref([]);
-let response;
+    console.log(payload)
+
+    const res = await api.doPost("/product", payload)
+    SwalCustom.close()
+    if (res.data.data) {
+      SwalCustom.successTime('Producto registrado correctamente', '')
+
+      const closeButton: HTMLElement | null = document.querySelector('#closeModal');
+      if (closeButton) {
+        closeButton.click();
+        resetForm()
+        emits('reloadProducts');
+
+      }
+    }
+
+  } catch (error) {
+    SwalCustom.close()
+
+  }
+})
 
 const getCategories = async () => {
-    try {
-        response = await api.doGet("/pageable/category");
-        items.value = response.data.data;
-        console.log(items)
-    } catch (error) {
-        console.log("soy el erro", error);
-    }
+  try {
+    const response = await ProductController.getAllCategories()
+    items.value = response
+  } catch (error) {
+    console.log("Error al obtener categorias", error);
+  }
 };
-getCategories();
+
 onMounted(() => {
-    console.log("Se ejecuto el modal");
+  getCategories()
 });
+
 </script>
-<style></style>
+
+
+<style scoped></style>

@@ -15,9 +15,14 @@
       <div class="d-flex justify-content-end  pt-3">
         <div class="card">
           <div class="card-body fw-bold">
-            <div class="card-text"> Ventas del {{ formatDate((dateEarns as Date)) }} hasta {{formatDate((new Date))}}</div>
+            <div class="card-text"> Resultados del {{ formatDate((dateEarns as Date)) }} hasta
+              {{ formatDate((new Date)) }}
+            </div>
             <div class="card-text text-primary" v-if="loadingAmountSold">Calculando...</div>
-            <div class="card-text text-primary" v-else>${{ amoutEarns }} pesos</div>
+            <div v-else>
+              <div class="card-text text-primary">Venta: {{ amoutEarns ? `$${amoutEarns} pesos` : 'Error' }}</div>
+              <div class="card-text text-primary">Compra: {{ amountExpenses ? `$${amountExpenses} pesos` : 'Error' }}</div>
+            </div>
             <div class="card-text">
               <button data-bs-target="#amountEarnModal" type="button" data-bs-toggle="modal"
                       class="btn bg-transparent p-0 text-decoration-underline">Cambiar fecha
@@ -73,7 +78,7 @@
   </div>
 
   <div class="my-2 table-responsive">
-    <SkeletonTable :headersTable="headersTable" :quantity-rows="7" :loading="loadingTable"/>
+    <SkeletonTable :headersTable="headersTable" :quantity-rows="headersTable.length" :loading="loadingTable"/>
     <table class="table table-hover" v-if="!loadingTable">
       <thead>
       <tr>
@@ -82,7 +87,7 @@
       </thead>
       <tbody v-if="paginatedCards.length == 0">
       <tr>
-        <td colspan="7">
+        <td :colspan="headersTable.length">
           <NotFoundElements/>
         </td>
       </tr>
@@ -90,11 +95,12 @@
       <tbody v-else>
       <tr v-for="card in paginatedCards " :key="card.id">
         <th scope="row">{{ card.index }}</th>
-        <td>{{ card.id }}</td>
+        <td class="text-center">{{ card.id }}</td>
+        <td>{{ card.transactionType }}</td>
         <td>{{ card.sellerName }}</td>
         <td>{{ card.buyerName }}</td>
         <td>{{ card.totalAmount }}</td>
-        <td>{{ card.createdAt }}</td>
+        <td>{{ formatDate(new Date(card.createdAt)) }}</td>
         <td>
           <button class="btn btn-primary text-secondary" type="button" data-bs-toggle="modal"
                   data-bs-target="#historyProduct" @click="setItem(card)">Ver productos
@@ -125,7 +131,7 @@
 </template>
 
 <script setup lang="ts">
-import {computed, getCurrentInstance,  onMounted, ref} from "vue";
+import {computed, getCurrentInstance, onMounted, ref} from "vue";
 import {useForm, useField} from "vee-validate";
 import * as yup from "yup";
 import api from "@/config/http-client.gateway";
@@ -148,6 +154,7 @@ const loadingAmountSold = ref(false);
 const headersTable = [
   {value: '#', key: 'index'},
   {value: 'Transacción', key: 'id'},
+  {value: 'Tipo', key: 'transactionType'},
   {value: 'Vendedor', key: 'sellerName'},
   {value: 'Cliente', key: 'buyerName'},
   {value: 'Precio Total', key: 'totalAmount'},
@@ -156,9 +163,9 @@ const headersTable = [
 ] as { value: string, key: string }[];
 
 
-
 /** * @description * get earns * */
-const amoutEarns = ref(0);
+const amoutEarns = ref(0); //amoutIncome
+const amountExpenses = ref(0);
 const dateEarns = ref(new Date());
 
 const getAmountEarns = async () => {
@@ -169,11 +176,12 @@ const getAmountEarns = async () => {
       interval: null,
     })
     if (response.status === 200) {
-      amoutEarns.value = Math.round(response.data.data);
+      amoutEarns.value = Math.round(response.data.data.amountIncome);
+      amountExpenses.value = Math.round(response.data.data.amountExpenses);
     }
   } catch (e) {
     console.log(e)
-  }finally {
+  } finally {
     loadingAmountSold.value = false;
   }
 }
@@ -246,6 +254,7 @@ const getTransactions = async () => {
       items.value.push({
         index: index,
         id: transaction.id,
+        transactionType: transaction.transactionType,
         sellerName: transaction.sellerName,
         buyerName: transaction.buyerName,
         totalAmount: transaction.totalAmount,
@@ -287,7 +296,8 @@ const search = ref('');
 
 const filterItem = computed(() => {
   return items.value.filter((item) => {
-    return item.sellerName.toLowerCase().includes(search.value.toLowerCase());
+    return (item.sellerName.toLowerCase().includes(search.value.toLowerCase()) ||
+        item.transactionType.toLowerCase().includes(search.value.toLowerCase()));
   });
 });
 
