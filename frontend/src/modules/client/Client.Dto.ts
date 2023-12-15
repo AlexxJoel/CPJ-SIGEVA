@@ -11,3 +11,12 @@ export type person = {
     surname:string,
     lastname:string
 }
+
+export type SelectedClient = {
+    id: number;
+    email: string;
+    peopleId: number;
+    phoneNumber: string;
+    purchasesCount: number;
+    person: person
+}

@@ -101,6 +101,11 @@ const router = createRouter({
                     component: () => import("../components/NotFound.vue")
                 },
                 {
+                    path: 'restockEmploy',
+                    name: 'restockEmploy',
+                    component: () => import('../views/employ/products/restockProduct.vue'),
+                },
+                {
                     path: 'layawayEmploy',
                     name: 'layawayEmploy',
                     component: () => import('../views/employ/products/layawayProduct.vue'),
