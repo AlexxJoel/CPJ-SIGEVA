@@ -70,8 +70,12 @@ const updateClient = async () => {
             }
         });
     } catch (error) {
-        isLoading.value=false;
-        console.log(error);
+      isLoading.value = false;
+      Swal.fire({
+        icon: "error",
+        title: "Error al actualizar el cliente",
+        confirmButtonText: "Aceptar",
+      });
     }
 };
 

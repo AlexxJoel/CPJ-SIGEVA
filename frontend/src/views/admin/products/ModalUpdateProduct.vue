@@ -178,7 +178,7 @@ let onSubmit = handleSubmit(async values => {
 
   } catch (error) {
     SwalCustom.close()
-
+    SwalCustom.error('Error al actualizar el producto', 'Intente de nuevo')
   }
 })
 

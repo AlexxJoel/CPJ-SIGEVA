@@ -17,7 +17,7 @@ const router = createRouter({
         {
             path: '/admin/',
             name: 'admin',
-            meta: {requiresAuth: true, role: 'Admin'},
+            meta: {requiresAuth: true, role: 'admin'},
             component: () => import('../views/admin/component/AdminLayout.vue'),
             children: [
                 {
@@ -64,13 +64,13 @@ const router = createRouter({
         }, {
             path: '/employ/',
             name: 'employ',
-            meta: {requiresAuth: true, role: 'Empleado'},
+            meta: {requiresAuth: true, role: 'empleado'},
             component: () => import('../views/employ/component/EmployLayout.vue'),
             children: [
                 {
                     path: 'home',
                     name: 'homeEmploy',
-                    component: () => import('../views/employ/home/Home.vue'),
+                    component: () => import('../views/admin/home/Home.vue'),
                 },
                 {
                     path: 'sales',
@@ -129,9 +129,9 @@ router.beforeEach((to, from, next) => {
             next('/');
         } else {
             if (to.meta.role && to.meta.role !== role) {
-                if (role === 'Admin') {
+                if (role === 'admin') {
                     next('/admin/home');
-                } else if (role === 'Empleado') {
+                } else if (role === 'empleado') {
                     next('/employ/home');
                 }
             } else {

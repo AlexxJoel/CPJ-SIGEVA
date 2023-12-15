@@ -25,6 +25,7 @@ const login = async (req: Request, res: Response): Promise<Response> => {
 
         return res.status(body.code).json({...body, token});
     } catch (e) {
+        console.log(e)
         const error = validateError(e as Error)
         return res.status(error.code).json(error)
     }

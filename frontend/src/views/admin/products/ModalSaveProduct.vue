@@ -160,7 +160,7 @@ let onSubmit = handleSubmit(async values => {
 
   } catch (error) {
     SwalCustom.close()
-
+    await SwalCustom.error('Error al registrar el producto', 'Intente de nuevo')
   }
 })
 

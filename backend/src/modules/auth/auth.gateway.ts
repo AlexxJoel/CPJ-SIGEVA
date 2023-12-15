@@ -22,6 +22,7 @@ const findAuthUserByUsername = async (username: string) => {
         )[0] as AuthUserDto;
 
     } catch (e) {
+        console.log(e)
         throw Error(Errors.SERVER_ERROR);
     }
 }
