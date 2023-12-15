@@ -58,7 +58,7 @@ const saveSell = async (payload: Transaction) => {
             if (!productRows[0]?.id) throw Error(Errors.ERROR_UPDATING);
             if (productRows[0]?.quantity < 4) {
                 const { rows: managerRow } = await client.query(`select email from staff where is_manager = true;`)
-                sendNotification(managerRow[0]?.email, productRows[0]?.name);
+                await sendNotification(managerRow[0]?.email, productRows[0]?.name);
             }
         }
         await client.query('COMMIT');
@@ -71,7 +71,7 @@ const saveSell = async (payload: Transaction) => {
             charge: payload.charge,
         }
         if (payload.sendEmail)
-            sendTicket(ticketPayload, transactionRow[0].creation_date, payload.totalAmount, costumerRow[0].email);
+            await sendTicket(ticketPayload, transactionRow[0].creation_date, payload.totalAmount, costumerRow[0].email);
         return !!transactionRow[0].id;
     } catch (error) {
         console.log(error);
@@ -130,7 +130,7 @@ const saveReStock = async (payload: Transaction) => {
             if (!productRows[0]?.id) throw Error(Errors.ERROR_UPDATING);
             if (productRows[0]?.quantity < 4) {
                 const { rows: managerRow } = await client.query(`select email from staff where is_manager = true;`)
-                sendNotification(managerRow[0]?.email, productRows[0]?.name);
+                await sendNotification(managerRow[0]?.email, productRows[0]?.name);
             }
         }
         await client.query('COMMIT');
@@ -179,7 +179,7 @@ const saveLayaway = async (payload: Transaction) => {
             if (!productRows[0]?.id) throw Error(Errors.ERROR_UPDATING);
             if (productRows[0]?.quantity < 4) {
                 const { rows: managerRow } = await client.query(`select email from staff where is_manager = true;`)
-                sendNotification(managerRow[0]?.email, productRows[0]?.name);
+                await sendNotification(managerRow[0]?.email, productRows[0]?.name);
             }
         }
         await client.query('COMMIT');
@@ -192,7 +192,7 @@ const saveLayaway = async (payload: Transaction) => {
             charge: payload.charge,
         }
         if (payload.sendEmail)
-            sendTicketLayaway(ticketPayload, transactionRow[0].creation_date, payload.totalAmount, clientRow[0].email);
+            await sendTicketLayaway(ticketPayload, transactionRow[0].creation_date, payload.totalAmount, clientRow[0].email);
         return !!transactionRow[0].id;
     } catch (error) {
         console.log(error);
