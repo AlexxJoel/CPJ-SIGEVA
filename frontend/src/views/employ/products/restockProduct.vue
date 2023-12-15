@@ -263,6 +263,7 @@ const getProducts = async () => {
     });
     isLoading.value = false;
   } catch (error) {
+    isLoading.value = false;
     console.log(error);
   }
 };
@@ -274,6 +275,7 @@ const getSuppliers = async () => {
     suppliers.value = response.data.data;
     isLoading.value = false;
   } catch (error) {
+    isLoading.value = false;
     console.log(error);
   }
 };
@@ -393,6 +395,7 @@ const saveRestock = () => {
       }
     });
   } catch (error) {
+    isLoading.value = false;
     console.log(error);
   }
 };
@@ -438,6 +441,7 @@ const saveRestockNewSupplier = async () => {
       }
     });
   } catch (error) {
+    isLoading.value = false;
     console.log(error);
   }
 };
