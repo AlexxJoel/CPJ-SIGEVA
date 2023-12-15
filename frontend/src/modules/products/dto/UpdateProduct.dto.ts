@@ -1,4 +1,4 @@
-export type ProductDto = {
+export type UpdateProductDto = {
     id: number;
     name: string;
     description: string;
