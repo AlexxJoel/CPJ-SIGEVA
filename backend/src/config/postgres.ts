@@ -29,7 +29,7 @@ export class PoolSingleton {
         return PoolSingleton._instance;
     }
 
-    public async query(text: string, params: any[]): Promise<any> {
+    public async query(text: string, params?: any[]): Promise<any> {
         const start = Date.now();
         const res = await this.pool.query(text, params);
         const duration = Date.now() - start;

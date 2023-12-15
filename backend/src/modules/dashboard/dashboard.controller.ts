@@ -19,12 +19,12 @@ const getAmount = async (req: Request, res: Response) => {
             payload.interval <= 0 ||
             Number.isNaN(payload.interval)) throw Error(Errors.INVALID_FIELDS);
 
-        const categories = await findAll(payload);
-        const body: ResponseApi<number> = {
+        const response = await findAll(payload);
+        const body: ResponseApi<any> = {
             code: 200,
             error: false,
             message: 'Ok',
-            data: categories,
+            data: response,
         }
         return res.status(body.code).json(body);
     } catch (error) {
