@@ -10,4 +10,7 @@ export class ProductController {
             console.log("soy el erro", error);
         }
     }
+
+
+
 }
