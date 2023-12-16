@@ -14,6 +14,7 @@ export const sendNotification = async (managerEmail: string, productName: string
         console.log(mailOptions);        
         // Envía el correo electrónico
         await transporter.sendMail(mailOptions);
+        transporter.close();
     } catch (error) {
         console.log('Error enviando correo de notificación');
         throw Error(Errors.ERROR_SENDING_EMAIL);
@@ -22,9 +23,10 @@ export const sendNotification = async (managerEmail: string, productName: string
 
 export const sendTicket = async (payload: TicketDto, creationDate: string, totalAmount: number, costumerEmail: string) => {
     try {
-        const mailOptions = {
-            from: process.env.EMAIL_ADDRESS,
-            to: costumerEmail,
+        // Envía el correo electrónico
+        await transporter.sendMail( {
+            from:`SIGEVA  <${process.env.EMAIL_ADDRESS}>`,
+            to: [costumerEmail] ,
             subject: 'Gacias por tu compra en LORD OF RINGS Joyería',
             text: `Estimado/a ${payload.costumerName},
                 En nombre de todo el equipo de THE LORD OR RINGS Joyería, queremos expresar nuestro más sincero
@@ -37,10 +39,8 @@ export const sendTicket = async (payload: TicketDto, creationDate: string, total
                 Esperamos verte de nuevo en nuestra tienda y ser parte de más momentos inolvidables contigo.
                 Gracias por elegir THE LORD ORF RINGS Joyería. Tu satisfacción es nuestra prioridad.
                 THE LORD OF RINGS Joyería`,
-        };
-        console.log(mailOptions);        
-        // Envía el correo electrónico
-        await transporter.sendMail(mailOptions);
+        });
+        transporter.close();
     } catch (error) {
         console.log('Error enviando Ticket de compra');
         throw Error(Errors.ERROR_SENDING_EMAIL);
@@ -50,7 +50,7 @@ export const sendTicketLayaway = async (payload: TicketDto, creationDate: string
     try {
         const mailOptions = {
             from: process.env.EMAIL_ADDRESS,
-            to: costumerEmail,
+            to: [costumerEmail],
             subject: 'Gacias por realizar tu apartado en LORD OF RINGS Joyería',
             text: `Estimado/a ${payload.costumerName},
                 En nombre de todo el equipo de THE LORD OR RINGS Joyería, queremos expresar nuestro más sincero
@@ -67,8 +67,9 @@ export const sendTicketLayaway = async (payload: TicketDto, creationDate: string
         console.log(mailOptions);        
         // Envía el correo electrónico
         await transporter.sendMail(mailOptions);
+        transporter.close();
     } catch (error) {
-        console.log('Error enviando Ticket de apartado');
+                console.log('Error enviando Ticket de apartado');
         throw Error(Errors.ERROR_SENDING_EMAIL);
     }
 }

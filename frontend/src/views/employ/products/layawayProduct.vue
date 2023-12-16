@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { onMounted, ref, inject, watch } from "vue";
+import {onMounted, ref, inject, watch} from "vue";
 import api from "../../../config/http-client.gateway";
 import "vue-loading-overlay/dist/css/index.css";
 import Loading from "vue-loading-overlay";
-import type { ProductSold } from "../../../modules/product/dto/productSold.Dto";
-import type { SelectedClient } from "../../../modules/client/Client.Dto";
+import type {ProductSold} from "../../../modules/product/dto/productSold.Dto";
+import type {SelectedClient} from "../../../modules/client/Client.Dto";
+import NotFoundElements from "@/components/NotFoundElements.vue";
 
 const Swal = inject("$swal");
 
@@ -23,9 +24,9 @@ const isLoading = ref(false);
 const getProducts = async () => {
   try {
     isLoading.value = true;
-    const response = await api.doPost("/pageable/product", { name: "" });
+    const response = await api.doPost("/pageable/product", {name: ""});
     items.value = response.data.data.filter(
-      (obj: ProductSold) => obj.quantity !== 0
+        (obj: ProductSold) => obj.quantity !== 0
     );
     items.value.map((element: ProductSold, index) => {
       element.index = index + 1;
@@ -43,7 +44,7 @@ const getClients = async () => {
     isLoading.value = true;
     const response = await api.doGet("/clients");
     clients.value = response.data.data.filter(
-      (element: SelectedClient) => element.purchasesCount >= 3
+        (element: SelectedClient) => element.purchasesCount >= 3
     );
     console.log("clientes de ventas", clients.value);
     isLoading.value = false;
@@ -62,7 +63,7 @@ const onSelectedClient = (clientId: string) => {
   } else {
     // const json = JSON.parse(JSON.stringify(clients.value))
     selectedClient.value = clients.value.find(
-      (ele: SelectedClient) => ele.id == parseInt(clientId)
+        (ele: SelectedClient) => ele.id == parseInt(clientId)
     )!;
     if (selectedClient.value.purchasesCount > 3) {
       descount.value = 0.05;
@@ -77,22 +78,22 @@ const onSelectedClient = (clientId: string) => {
 
 const calculateDescount = () => {
   let totalToPay = selectedProducts.value.reduce(
-    (total, item: ProductSold) => total + item.uniPrice * item.quantitySold,
-    0
+      (total, item: ProductSold) => total + item.uniPrice * item.quantitySold,
+      0
   );
   let totalDescount = totalToPay * descount.value;
   return totalDescount;
 };
 const calculateSubtotalCost = () => {
   return selectedProducts.value.reduce(
-    (total, item: ProductSold) => total + item.uniPrice * item.quantitySold,
-    0
+      (total, item: ProductSold) => total + item.uniPrice * item.quantitySold,
+      0
   );
 };
 const calculateTotalCost = () => {
   let totalToPay = selectedProducts.value.reduce(
-    (total, item: ProductSold) => total + item.uniPrice * item.quantitySold,
-    0
+      (total, item: ProductSold) => total + item.uniPrice * item.quantitySold,
+      0
   );
   if (descount.value != 0) {
     totalToPay = totalToPay - totalToPay * descount.value;
@@ -103,9 +104,9 @@ const calculateTotalCost = () => {
 const addProducts = (productId: number, quantitySold: number) => {
   // console.log("holaaaa",productId, quantitySold);
   if (
-    !selectedProducts.value.find(
-      (element: ProductSold) => element.id === productId
-    )
+      !selectedProducts.value.find(
+          (element: ProductSold) => element.id === productId
+      )
   ) {
     selectedProducts.value.push({
       ...items.value.find((element) => element.id === productId),
@@ -113,12 +114,12 @@ const addProducts = (productId: number, quantitySold: number) => {
     } as ProductSold);
   } else {
     const charge: ProductSold = selectedProducts.value.find(
-      (element: ProductSold) => element.id === productId
+        (element: ProductSold) => element.id === productId
     )!;
     charge.quantitySold = quantitySold;
     if (charge.quantitySold == 0) {
       selectedProducts.value = selectedProducts.value.filter(
-        (obj: ProductSold) => obj.id !== productId
+          (obj: ProductSold) => obj.id !== productId
       );
     }
   }
@@ -186,49 +187,54 @@ onMounted(() => {
 watch([() => selectedClient.value, () => selectedProducts.value], () => {
   // Verifica si tanto selectedClient como selectedProducts tienen valores
   isButtonDisabled.value =
-    !selectedClient.value || selectedProducts.value.length === 0;
+      !selectedClient.value || selectedProducts.value.length === 0;
 });
 </script>
 
 <template>
   <div>
-    <loading v-model:active="isLoading" :can-cancel="true" />
+    <loading v-model:active="isLoading" :can-cancel="true"/>
     <h1 class="h1 text-primary fw-bold my-3">Apartados</h1>
   </div>
   <div class="container-fluid">
     <div class="row">
       <div class="col-lg-7 shadow">
         <div
-          class="table-container"
-          style="max-height: 700px; overflow-y: auto"
+            class="table-container"
+            style="max-height: 700px; overflow-y: auto"
         >
           <table class="table">
             <thead class="sticky-top">
-              <tr>
-                <th scope="col">#</th>
-                <th scope="col">Producto</th>
-                <th scope="col">Unidades</th>
-              </tr>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Producto</th>
+              <th scope="col">Unidades</th>
+            </tr>
             </thead>
             <tbody>
-              <tr v-for="product in items" :key="product.id">
-                <th scope="row">{{ product.index }}</th>
-                <td>
-                  <h5>{{ product.name }}</h5>
-                  <span class="badge bg-primary">{{
+            <tr v-if="items.length == 0">
+              <td colspan="3" class="pt-3">
+                <NotFoundElements message="No se encontraron productos para la venta"/>
+              </td>
+            </tr>
+            <tr v-else v-for="product in items" :key="product.id">
+              <th scope="row">{{ product.index }}</th>
+              <td>
+                <h5>{{ product.name }}</h5>
+                <span class="badge bg-primary">{{
                     product.category.name
                   }}</span>
-                  <p>${{ product.uniPrice }}</p>
-                  <p><strong>Stock: </strong>{{ product.quantity }}</p>
-                  <p>{{ product.description }}</p>
-                </td>
-                <td>
-                  <div class="mb-3 col-lg-6">
-                    <label
+                <p>${{ product.uniPrice }}</p>
+                <p><strong>Stock: </strong>{{ product.quantity }}</p>
+                <p>{{ product.description }}</p>
+              </td>
+              <td>
+                <div class="mb-3 col-lg-6">
+                  <label
                       for="exampleInputPassword1"
                       class="form-label"
-                    ></label>
-                    <input
+                  ></label>
+                  <input
                       type="number"
                       class="form-control"
                       id="exampleInputPassword1"
@@ -236,10 +242,10 @@ watch([() => selectedClient.value, () => selectedProducts.value], () => {
                       @change="addProducts(product.id, product.quantitySold)"
                       min="0"
                       :max="product.quantity"
-                    />
-                  </div>
-                </td>
-              </tr>
+                  />
+                </div>
+              </td>
+            </tr>
             </tbody>
           </table>
         </div>
@@ -250,22 +256,22 @@ watch([() => selectedClient.value, () => selectedProducts.value], () => {
             <h5 class="card-title">Clientes frecuentes</h5>
             <div>
               <label for="exampleFormControlInput1" class="form-label"
-                >Cliente</label
+              >Cliente</label
               >
               <select
-                class="form-select"
-                aria-label="Default select example"
-                @input="onSelectedClient($event.target.value)"
-                ref="selectClientRef"
+                  class="form-select"
+                  aria-label="Default select example"
+                  @input="onSelectedClient($event.target.value)"
+                  ref="selectClientRef"
               >
                 <option selected value="0" key="0" disabled>
                   Selecciona un cliente
                 </option>
 
                 <option
-                  v-for="client in clients"
-                  :value="client.id"
-                  :key="client.person.name"
+                    v-for="client in clients"
+                    :value="client.id"
+                    :key="client.person.name"
                 >
                   <span class="font-weight-bold">Nombre:</span>
                   {{
@@ -274,9 +280,9 @@ watch([() => selectedClient.value, () => selectedProducts.value], () => {
                     client.person.surname +
                     " " +
                     `${
-                      client.person.lastname !== null
-                        ? client.person.lastname
-                        : ""
+                        client.person.lastname !== null
+                            ? client.person.lastname
+                            : ""
                     }`
                   }}
                 </option>
@@ -293,10 +299,10 @@ watch([() => selectedClient.value, () => selectedProducts.value], () => {
                 <strong>Apellido materno:</strong>
                 {{
                   selectedClient.person
-                    ? selectedClient.person.lastname
                       ? selectedClient.person.lastname
+                          ? selectedClient.person.lastname
+                          : ""
                       : ""
-                    : ""
                 }}
               </div>
               <div>
@@ -336,10 +342,10 @@ watch([() => selectedClient.value, () => selectedProducts.value], () => {
             </div>
             <div class="form-check my-3">
               <input
-                class="form-check-input"
-                type="checkbox"
-                v-model="needEmail"
-                id="confirmation"
+                  class="form-check-input"
+                  type="checkbox"
+                  v-model="needEmail"
+                  id="confirmation"
               />
               <label class="form-check-label" for="confirmation">
                 ¿Envíar confirmación?
@@ -347,9 +353,9 @@ watch([() => selectedClient.value, () => selectedProducts.value], () => {
             </div>
             <div class="text-center">
               <button
-                class="btn btn-primary text-secondary mt-3"
-                @click="saveLayaway()"
-                :disabled="isButtonDisabled"
+                  class="btn btn-primary text-secondary mt-3"
+                  @click="saveLayaway()"
+                  :disabled="isButtonDisabled"
               >
                 Confirmar apartado
               </button>
