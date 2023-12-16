@@ -6,6 +6,7 @@ import Loading from "vue-loading-overlay";
 import type { ProductSold } from "../../../modules/product/dto/productSold.Dto";
 import type { SelectedStaff } from "@/modules/satff/dtos/Staff.Dto";
 import type { SelectedClient } from "../../../modules/client/Client.Dto";
+import NotFoundElements from "@/components/NotFoundElements.vue";
 
 const Swal = inject("$swal");
 
@@ -209,30 +210,45 @@ const saveSale = async () => {
       cancelButtonText: "Cancelar",
       reverseButtons: true,
     }).then(async (result: any) => {
-      if (result.isConfirmed) {
-        isLoading.value = true;
-        const res = await api.doPost("/sell", payloadForSale);
-        console.log("respuerta de la vent ", res);
-        if (res.data.data) {
-          Swal.fire({
-            icon: "success",
-            title: "Acción realizada correctamente",
-            confirmButtonText: "Aceptar",
-          });
+      try{
+        if (result.isConfirmed) {
+          isLoading.value = true;
+          const res = await api.doPost("/sell", payloadForSale);
+          console.log("respuerta de la vent ", res);
+          if (res.data.data) {
+            Swal.fire({
+              icon: "success",
+              title: "Acción realizada correctamente",
+              confirmButtonText: "Aceptar",
+            });
+          }
+          getClients();
+          getProducts();
+          selectedClient.value = {} as SelectedClient;
+          selectedProducts.value = [];
+          subtotal.value = null;
+          total.value = null;
+          selectClientRef.value.selectedIndex = 0;
+          isLoading.value = false;
         }
-        getClients();
-        getProducts();
-        selectedClient.value = {} as SelectedClient;
-        selectedProducts.value = [];
-        subtotal.value = null;
-        total.value = null;
-        selectClientRef.value.selectedIndex = 0;
+      }catch (e) {
         isLoading.value = false;
+        console.log(e);
+        Swal.fire({
+          icon: "error",
+          title: "Error al realizar la acción",
+          confirmButtonText: "Aceptar",
+        })
       }
     });
   } catch (error) {
     isLoading.value = false;
     console.log(error);
+    Swal.fire({
+      icon: "error",
+      title: "Error al realizar la acción",
+      confirmButtonText: "Aceptar",
+    })
   }
 };
 
@@ -306,25 +322,35 @@ const saveSaleStaff = async () => {
       cancelButtonText: "Cancelar",
       reverseButtons: true,
     }).then(async (result: any) => {
-      if (result.isConfirmed) {
-        isLoading.value = true;
-        const res = await api.doPost("/sell", payloadForSaleEmploye);
-        console.log("respuerta de la vent ", res);
-        if (res.data.data) {
-          Swal.fire({
-            icon: "success",
-            title: "Acción realizada correctamente",
-            confirmButtonText: "Aceptar",
-          });
+      try{
+        if (result.isConfirmed) {
+          isLoading.value = true;
+          const res = await api.doPost("/sell", payloadForSaleEmploye);
+          console.log("respuerta de la vent ", res);
+          if (res.data.data) {
+            Swal.fire({
+              icon: "success",
+              title: "Acción realizada correctamente",
+              confirmButtonText: "Aceptar",
+            });
+          }
+          getClients();
+          getProducts();
+          selectedClient.value = {} as SelectedClient;
+          selectedProducts.value = [];
+          subtotal.value = null;
+          total.value = null;
+          selectClientRef.value.selectedIndex = 0;
+          isLoading.value = false;
         }
-        getClients();
-        getProducts();
-        selectedClient.value = {} as SelectedClient;
-        selectedProducts.value = [];
-        subtotal.value = null;
-        total.value = null;
-        selectClientRef.value.selectedIndex = 0;
+      }catch (e) {
         isLoading.value = false;
+        console.log(e);
+        Swal.fire({
+          icon: "error",
+          title: "Error al realizar la acción",
+          confirmButtonText: "Aceptar",
+        })
       }
     });
   } catch (error) {
@@ -415,7 +441,13 @@ watch(
               </tr>
             </thead>
             <tbody>
-              <tr v-for="product in items" :key="product.id">
+
+              <tr v-if="items.length == 0">
+                <td colspan="3"  class="pt-3">
+                  <NotFoundElements message="No se encontraron productos para la venta"/>
+                </td>
+              </tr>
+              <tr v-else v-for="product in items" :key="product.id">
                 <th scope="row">{{ product.index }}</th>
                 <td>
                   <h5>{{ product.name }}</h5>
@@ -457,7 +489,7 @@ watch(
                   class="nav-link btn"
                   :class="
                     selectedTab === 'client'
-                      ? 'active bg-primary text-secondary'
+                      ? 'active bg-secondary text-primary'
                       : 'text-black'
                   "
                   >Cliente</a

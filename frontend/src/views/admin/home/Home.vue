@@ -221,7 +221,8 @@ let onSubmit = handleSubmit(async values => {
         dateEarns.value.setFullYear(dateEarns.value.getFullYear() - values.quantity)
       }
 
-      amoutEarns.value = Math.round(response.data.data);
+      amoutEarns.value = Math.round(response.data.data.amountIncome);
+      amountExpenses.value = Math.round(response.data.data.amountExpenses)
       hideModalAmoutDate();
       resetForm();
     }

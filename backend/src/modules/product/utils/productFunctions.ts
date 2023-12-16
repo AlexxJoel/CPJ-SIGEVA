@@ -3,7 +3,7 @@ import { GetProductDto } from "../product.dtos";
 export const mapProductsResponse = (rows: any): GetProductDto[] => {
     return rows.map((row: any) => ({
         id: row['id'],
-        name: row['name'],
+        name: 'prueba',
         description: row['description'],
         quantity: row['quantity'],
         uniPrice: row['unit_price'],

@@ -19,6 +19,8 @@
               </tr>
             </thead>
             <tbody>
+
+
               <tr v-for="product in items" :key="product.id">
                 <th scope="row">{{ product.index }}</th>
                 <td>
@@ -254,9 +256,7 @@ const getProducts = async () => {
   try {
     isLoading.value = true;
     const response = await api.doPost("/pageable/product", { name: "" });
-    items.value = response.data.data.filter(
-      (obj: ProductSold) => obj.quantity !== 0
-    );
+    items.value = response.data.data
     items.value.map((element: ProductSold, index) => {
       element.index = index + 1;
       element.quantitySold = 0;
@@ -366,40 +366,52 @@ const saveRestock = () => {
       cancelButtonText: "Cancelar",
       reverseButtons: true,
     }).then(async (result: any) => {
-      if (result.isConfirmed) {
-        isLoading.value = true;
-        const res = await api.doPost("/restock", payloadRestock);
-        if (res.data.data) {
-          Swal.fire({
-            icon: "success",
-            title: "Acción realizada correctamente",
-            confirmButtonText: "Aceptar",
-          });
-        }
-        getSuppliers();
-        getProducts();
-        selectedSupplier.value = {
-          id: 0,
-          contact: "",
-          peopleId: 0,
-          person: {
+      try{
+        if (result.isConfirmed) {
+          isLoading.value = true;
+          const res = await api.doPost("/restock", payloadRestock);
+          if (res.data.data) {
+            Swal.fire({
+              icon: "success",
+              title: "Acción realizada correctamente",
+              confirmButtonText: "Aceptar",
+            });
+          }
+          getSuppliers();
+          getProducts();
+          selectedSupplier.value = {
             id: 0,
-            name: "",
-            surname: "",
-            lastname: "",
-          },
-        };
-        selectedProducts.value = [];
-        selectedSupplierRef.value!.selectedIndex = 0;
+            contact: "",
+            peopleId: 0,
+            person: {
+              id: 0,
+              name: "",
+              surname: "",
+              lastname: "",
+            },
+          };
+          selectedProducts.value = [];
+          selectedSupplierRef.value!.selectedIndex = 0;
+          isLoading.value = false;
+        }
+      }catch (e) {
         isLoading.value = false;
+        Swal.fire({
+          icon: "error",
+          title: "Error al realizar la acción",
+          confirmButtonText: "Aceptar",
+        });
       }
-    }).catch(() => {
-      isLoading.value = false
-    } )
+    })
 
   } catch (error) {
     isLoading.value = false;
     console.log(error);
+    Swal.fire({
+      icon: "error",
+      title: "Error al realizar la acción",
+      confirmButtonText: "Aceptar",
+    });
   }
 };
 
